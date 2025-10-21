@@ -1,0 +1,14 @@
+.github
+.idea
+.nx
+.vscode
+
+node_modules
+
+.editorconfig
+.gitignore
+.prettierignore
+.prettierrc
+docker-compose.yml
+error.log
+README.md

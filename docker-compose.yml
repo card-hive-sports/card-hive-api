@@ -1,0 +1,9 @@
+name: card-hive
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: auth
+    ports:
+      - "3000:3000"
