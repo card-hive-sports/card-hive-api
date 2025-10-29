@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "300423fbe75a2a6ac271edc614efce2e03c9043914845d2d42045ce0c41677e4": {
+      "displayName": "CardHiveMonitoringStack Template",
+      "source": {
+        "path": "CardHiveMonitoringStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "765430960003-us-east-1-431c35d5": {
+          "bucketName": "cdk-hnb659fds-assets-765430960003-us-east-1",
+          "objectKey": "300423fbe75a2a6ac271edc614efce2e03c9043914845d2d42045ce0c41677e4.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-file-publishing-role-765430960003-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

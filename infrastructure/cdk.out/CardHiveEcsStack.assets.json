@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "67f79bb5f094b84c1353cd3331518b89696069b58350a9e700c98c2972cf77c1": {
+      "displayName": "CardHiveEcsStack Template",
+      "source": {
+        "path": "CardHiveEcsStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "765430960003-us-east-1-effe968d": {
+          "bucketName": "cdk-hnb659fds-assets-765430960003-us-east-1",
+          "objectKey": "67f79bb5f094b84c1353cd3331518b89696069b58350a9e700c98c2972cf77c1.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-file-publishing-role-765430960003-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

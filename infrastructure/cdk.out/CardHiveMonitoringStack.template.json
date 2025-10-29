@@ -1,0 +1,375 @@
+{
+ "Description": "CloudWatch monitoring, alarms, and GuardDuty",
+ "Resources": {
+  "Dashboard9E4231ED": {
+   "Type": "AWS::CloudWatch::Dashboard",
+   "Properties": {
+    "DashboardBody": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"widgets\":[{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS CPU & Memory Utilization\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"],[\"AWS/ECS\",\"MemoryUtilization\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"]],\"yAxis\":{\"left\":{\"label\":\"Percentage\",\"max\":100}}}},{\"type\":\"metric\",\"width\":6,\"height\":3,\"x\":12,\"y\":0,\"properties\":{\"view\":\"singleValue\",\"title\":\"Running Tasks\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ECS\",\"DesiredTaskCount\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"],[\"AWS/ECS\",\"RunningTaskCount\",\"ClusterName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+       },
+       "\",\"ServiceName\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
+       },
+       "\"]]}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Request Count & Response Time\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApplicationELB\",\"RequestCount\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"TargetResponseTime\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"yAxis\":\"right\"}]],\"yAxis\":{\"left\":{\"label\":\"Count\"},\"right\":{\"label\":\"Seconds\"}}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"5XX Errors\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApplicationELB\",\"HTTPCode_Target_5XX_Count\",\"LoadBalancer\",\"",
+       {
+        "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{\"left\":{\"label\":\"Count\"}}}},{\"type\":\"metric\",\"width\":9,\"height\":6,\"x\":0,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database CPU Utilization\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"CPUUtilization\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{\"left\":{\"label\":\"Percentage\",\"max\":100}}}},{\"type\":\"metric\",\"width\":9,\"height\":6,\"x\":9,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database Connections\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"DatabaseConnections\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{\"left\":{\"label\":\"Count\"}}}}]}"
+      ]
+     ]
+    },
+    "DashboardName": "CardHive-Monitoring"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/Dashboard/Resource"
+   }
+  },
+  "HighCpuAlarm40723000": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Alert when CPU utilization > 80%",
+    "AlarmName": "CardHive-ECS-HighCPU",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "ClusterName",
+      "Value": {
+       "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+      }
+     },
+     {
+      "Name": "ServiceName",
+      "Value": {
+       "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/ECS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "Threshold": 80,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/HighCpuAlarm/Resource"
+   }
+  },
+  "HighMemoryAlarmB77DAB20": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Alert when memory utilization > 85%",
+    "AlarmName": "CardHive-ECS-HighMemory",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "ClusterName",
+      "Value": {
+       "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+      }
+     },
+     {
+      "Name": "ServiceName",
+      "Value": {
+       "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "MemoryUtilization",
+    "Namespace": "AWS/ECS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "Threshold": 85,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/HighMemoryAlarm/Resource"
+   }
+  },
+  "HighErrorRateAlarm9E2FAEE9": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Alert when 5xx errors > 10 in 5 minutes",
+    "AlarmName": "CardHive-ALB-High5xxErrors",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "LoadBalancer",
+      "Value": {
+       "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "HTTPCode_Target_5XX_Count",
+    "Namespace": "AWS/ApplicationELB",
+    "Period": 300,
+    "Statistic": "Sum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "Threshold": 10,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/HighErrorRateAlarm/Resource"
+   }
+  },
+  "HighResponseTimeAlarmCB9F63BA": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Alert when response time > 2 seconds",
+    "AlarmName": "CardHive-ALB-HighLatency",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "LoadBalancer",
+      "Value": {
+       "Fn::ImportValue": "CardHiveEcsStack:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "TargetResponseTime",
+    "Namespace": "AWS/ApplicationELB",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "Threshold": 2,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/HighResponseTimeAlarm/Resource"
+   }
+  },
+  "DatabaseHighCpuAlarm7C843113": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Alert when database CPU > 80%",
+    "AlarmName": "CardHive-RDS-HighCPU",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "Threshold": 80,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/DatabaseHighCpuAlarm/Resource"
+   }
+  },
+  "GuardDutyDetector": {
+   "Type": "AWS::GuardDuty::Detector",
+   "Properties": {
+    "Enable": true,
+    "FindingPublishingFrequency": "FIFTEEN_MINUTES",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/GuardDutyDetector"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0WKQQ7CIBBFz9I9HXFuYHRvogcwU0BLS8HAIDGEuxt04er99/MQEPcgByppVHodnZ2gXpnUKqikW1UuZF2I1Qz1RGmeAkUtjnf/l4OjuPXrO5p4ZIpaZ35DzwwbxSG2HpwzPzM34YM2sKTdCxFQghyWZO0Ys2e7Gbj8+AGarBhfmgAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveMonitoringStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DashboardUrl": {
+   "Description": "CloudWatch Dashboard URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=",
+      {
+       "Ref": "Dashboard9E4231ED"
+      }
+     ]
+    ]
+   }
+  },
+  "GuardDutyDetectorId": {
+   "Description": "GuardDuty Detector ID",
+   "Value": {
+    "Ref": "GuardDutyDetector"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

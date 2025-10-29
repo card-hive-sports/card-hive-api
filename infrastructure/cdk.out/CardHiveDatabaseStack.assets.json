@@ -1,0 +1,36 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d": {
+      "displayName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code",
+      "source": {
+        "path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "765430960003-us-east-1-f3abc71d": {
+          "bucketName": "cdk-hnb659fds-assets-765430960003-us-east-1",
+          "objectKey": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-file-publishing-role-765430960003-us-east-1"
+        }
+      }
+    },
+    "260a49fdfe6708233b578645ac29cbcd521ad2b9ce9c349e097e82dd03fe5b09": {
+      "displayName": "CardHiveDatabaseStack Template",
+      "source": {
+        "path": "CardHiveDatabaseStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "765430960003-us-east-1-6ebce569": {
+          "bucketName": "cdk-hnb659fds-assets-765430960003-us-east-1",
+          "objectKey": "260a49fdfe6708233b578645ac29cbcd521ad2b9ce9c349e097e82dd03fe5b09.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-file-publishing-role-765430960003-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

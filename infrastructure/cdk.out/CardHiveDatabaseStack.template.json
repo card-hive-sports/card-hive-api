@@ -1,0 +1,433 @@
+{
+ "Description": "RDS PostgreSQL database with encryption and Secrets Manager",
+ "Resources": {
+  "DatabaseSecret86DBB7B3": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "RDS PostgreSQL credentials for Card Hive",
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "password",
+     "IncludeSpace": false,
+     "PasswordLength": 32,
+     "SecretStringTemplate": "{\"username\":\"cardhive_admin\"}"
+    },
+    "Name": "card-hive/database/credentials",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/DatabaseSecret/Resource"
+   }
+  },
+  "DatabaseSecretAttachment9A63A3D4": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "DatabaseSecret86DBB7B3"
+    },
+    "TargetId": {
+     "Ref": "DatabaseB269D8BB"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/DatabaseSecret/Attachment/Resource"
+   }
+  },
+  "DatabaseSubnetGroup7D60F180": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for Database database",
+    "SubnetIds": [
+     {
+      "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcDatabaseSubnet1SubnetA6945F7D80132286"
+     },
+     {
+      "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcDatabaseSubnet2Subnet10872F28CD67447A"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/Database/SubnetGroup/Default"
+   }
+  },
+  "DatabaseB269D8BB": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "AutoMinorVersionUpgrade": true,
+    "BackupRetentionPeriod": 7,
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t3.micro",
+    "DBInstanceIdentifier": "card-hive-db",
+    "DBName": "cardhive",
+    "DBSubnetGroupName": {
+     "Ref": "DatabaseSubnetGroup7D60F180"
+    },
+    "DeleteAutomatedBackups": true,
+    "DeletionProtection": false,
+    "EnableCloudwatchLogsExports": [
+     "postgresql"
+    ],
+    "EnablePerformanceInsights": true,
+    "Engine": "postgres",
+    "EngineVersion": "15.14",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MultiAZ": false,
+    "PerformanceInsightsRetentionPeriod": 7,
+    "PreferredBackupWindow": "03:00-04:00",
+    "PreferredMaintenanceWindow": "sun:04:00-sun:05:00",
+    "PubliclyAccessible": false,
+    "StorageEncrypted": true,
+    "StorageType": "gp3",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "VPCSecurityGroups": [
+     {
+      "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Snapshot",
+   "DeletionPolicy": "Snapshot",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/Database/Resource"
+   }
+  },
+  "DatabaseLogRetentionpostgresqlFBE8A947": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/rds/instance/",
+       {
+        "Ref": "DatabaseB269D8BB"
+       },
+       "/postgresql"
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/Database/LogRetentionpostgresql/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:DeleteRetentionPolicy",
+        "logs:PutRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs22.x",
+    "Timeout": 900,
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-765430960003-us-east-1",
+     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ]
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "DatabaseUrlSecretFA7DE062": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "Database connection URL for Card Hive application",
+    "Name": "card-hive/database/url",
+    "SecretString": {
+     "Fn::Join": [
+      "",
+      [
+       "postgresql://{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:username::}}:{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:password::}}@",
+       {
+        "Fn::GetAtt": [
+         "DatabaseB269D8BB",
+         "Endpoint.Address"
+        ]
+       },
+       ":",
+       {
+        "Fn::GetAtt": [
+         "DatabaseB269D8BB",
+         "Endpoint.Port"
+        ]
+       },
+       "/cardhive"
+      ]
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/DatabaseUrlSecret/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2WMUU/DMAyEf8veU1OyX7AyCSEhgVreJzc1IWvrTLHDhKr+d9QWEIKn7853PgvW3kK5w6sUruuLIbQwNYquN3iV0yTkEqmMyOgpwdSs3ty98pfa8ILJkx5U0b2NxL8Kf5PZpE5gOqJii0IPLIrsyDS5ZdL7FPNleT5W/w7f1dkM0Qs8Rl+TEmuIbGR/QhFSgcMCI3uosutJKxQyAUeY6jjQMrTyOQ7BfSx2U/O8RiQxJ0fmR6xrjaIP7JfGU9ZL1tlw7AjOcvNuLdgSyt1ZQihSZg0jQb3xE3b6G+pcAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveDatabaseStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DatabaseEndpoint": {
+   "Description": "RDS Database Endpoint",
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Address"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveDatabaseEndpoint"
+   }
+  },
+  "DatabaseSecretArn": {
+   "Description": "ARN of the database credentials secret",
+   "Value": {
+    "Ref": "DatabaseSecret86DBB7B3"
+   },
+   "Export": {
+    "Name": "CardHiveDatabaseSecretArn"
+   }
+  },
+  "DatabaseUrlSecretArn": {
+   "Description": "ARN of the database URL secret",
+   "Value": {
+    "Ref": "DatabaseUrlSecretFA7DE062"
+   },
+   "Export": {
+    "Name": "CardHiveDatabaseUrlSecretArn"
+   }
+  },
+  "DatabaseName": {
+   "Description": "Database name",
+   "Value": "cardhive"
+  },
+  "ExportsOutputRefDatabaseSecret86DBB7B353068790": {
+   "Value": {
+    "Ref": "DatabaseSecret86DBB7B3"
+   },
+   "Export": {
+    "Name": "CardHiveDatabaseStack:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+   }
+  },
+  "ExportsOutputRefDatabaseB269D8BB88F4B1C4": {
+   "Value": {
+    "Ref": "DatabaseB269D8BB"
+   },
+   "Export": {
+    "Name": "CardHiveDatabaseStack:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

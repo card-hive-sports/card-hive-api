@@ -1,0 +1,1124 @@
+{
+ "Description": "VPC with public, private, and isolated subnets for Card Hive",
+ "Resources": {
+  "CardHiveVpc8A5A830F": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "card-hive-vpc"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/Resource"
+   }
+  },
+  "CardHiveVpcPublicSubnet1Subnet8BE45183": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "CardHiveVpcPublicSubnet1RouteTableF0159CA3": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "CardHiveVpcPublicSubnet1RouteTableAssociation0AC46165": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPublicSubnet1RouteTableF0159CA3"
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcPublicSubnet1Subnet8BE45183"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "CardHiveVpcPublicSubnet1DefaultRoute22D9181D": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "CardHiveVpcIGW4D5AB0F4"
+    },
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPublicSubnet1RouteTableF0159CA3"
+    }
+   },
+   "DependsOn": [
+    "CardHiveVpcVPCGW19111E57"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "CardHiveVpcPublicSubnet1EIP3547DE66": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1/EIP"
+   }
+  },
+  "CardHiveVpcPublicSubnet1NATGateway73E4C99F": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "CardHiveVpcPublicSubnet1EIP3547DE66",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcPublicSubnet1Subnet8BE45183"
+    },
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "DependsOn": [
+    "CardHiveVpcPublicSubnet1DefaultRoute22D9181D",
+    "CardHiveVpcPublicSubnet1RouteTableAssociation0AC46165"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "CardHiveVpcPublicSubnet2Subnet9DD5607F": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PublicSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "CardHiveVpcPublicSubnet2RouteTableB948E874": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PublicSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "CardHiveVpcPublicSubnet2RouteTableAssociationE5EDEA10": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPublicSubnet2RouteTableB948E874"
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcPublicSubnet2Subnet9DD5607F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "CardHiveVpcPublicSubnet2DefaultRouteF6048F59": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "CardHiveVpcIGW4D5AB0F4"
+    },
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPublicSubnet2RouteTableB948E874"
+    }
+   },
+   "DependsOn": [
+    "CardHiveVpcVPCGW19111E57"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "CardHiveVpcPrivateSubnet1SubnetFE099C74": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "CardHiveVpcPrivateSubnet1RouteTable52CCD01B": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "CardHiveVpcPrivateSubnet1RouteTableAssociationF7381E2D": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPrivateSubnet1RouteTable52CCD01B"
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcPrivateSubnet1SubnetFE099C74"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "CardHiveVpcPrivateSubnet1DefaultRouteACCE6554": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "CardHiveVpcPublicSubnet1NATGateway73E4C99F"
+    },
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPrivateSubnet1RouteTable52CCD01B"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "CardHiveVpcPrivateSubnet2Subnet2E80B1E2": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "CardHiveVpcPrivateSubnet2RouteTable68A9A67F": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "CardHiveVpcPrivateSubnet2RouteTableAssociationE5DC8C75": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPrivateSubnet2RouteTable68A9A67F"
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcPrivateSubnet2Subnet2E80B1E2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "CardHiveVpcPrivateSubnet2DefaultRoute95B01AAF": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "CardHiveVpcPublicSubnet1NATGateway73E4C99F"
+    },
+    "RouteTableId": {
+     "Ref": "CardHiveVpcPrivateSubnet2RouteTable68A9A67F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "CardHiveVpcDatabaseSubnet1SubnetA6945F7D": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.4.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Database"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Isolated"
+     },
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1/Subnet"
+   }
+  },
+  "CardHiveVpcDatabaseSubnet1RouteTable5F4A0709": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1/RouteTable"
+   }
+  },
+  "CardHiveVpcDatabaseSubnet1RouteTableAssociation629DC5B6": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CardHiveVpcDatabaseSubnet1RouteTable5F4A0709"
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcDatabaseSubnet1SubnetA6945F7D"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1/RouteTableAssociation"
+   }
+  },
+  "CardHiveVpcDatabaseSubnet2Subnet10872F28": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.5.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Database"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Isolated"
+     },
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2/Subnet"
+   }
+  },
+  "CardHiveVpcDatabaseSubnet2RouteTable4246D320": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2/RouteTable"
+   }
+  },
+  "CardHiveVpcDatabaseSubnet2RouteTableAssociation2226C576": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CardHiveVpcDatabaseSubnet2RouteTable4246D320"
+    },
+    "SubnetId": {
+     "Ref": "CardHiveVpcDatabaseSubnet2Subnet10872F28"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2/RouteTableAssociation"
+   }
+  },
+  "CardHiveVpcIGW4D5AB0F4": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "card-hive-vpc"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/IGW"
+   }
+  },
+  "CardHiveVpcVPCGW19111E57": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "CardHiveVpcIGW4D5AB0F4"
+    },
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/VPCGW"
+   }
+  },
+  "CardHiveVpcRestrictDefaultSecurityGroupCustomResource2068AB3B": {
+   "Type": "Custom::VpcRestrictDefaultSG",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+      "Arn"
+     ]
+    },
+    "DefaultSecurityGroupId": {
+     "Fn::GetAtt": [
+      "CardHiveVpc8A5A830F",
+      "DefaultSecurityGroup"
+     ]
+    },
+    "Account": "765430960003"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CardHiveVpc/RestrictDefaultSecurityGroupCustomResource/Default"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Effect": "Allow",
+         "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
+         ],
+         "Resource": [
+          {
+           "Fn::Join": [
+            "",
+            [
+             "arn:aws:ec2:us-east-1:765430960003:security-group/",
+             {
+              "Fn::GetAtt": [
+               "CardHiveVpc8A5A830F",
+               "DefaultSecurityGroup"
+              ]
+             }
+            ]
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-765430960003-us-east-1",
+     "S3Key": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "__entrypoint__.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group"
+   },
+   "DependsOn": [
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+    "aws:asset:property": "Code"
+   }
+  },
+  "AlbSecurityGroup86A59E99": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for Application Load Balancer",
+    "GroupName": "card-hive-alb-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow HTTPS from internet",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     },
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow HTTP from internet (redirects to HTTPS)",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/AlbSecurityGroup/Resource"
+   }
+  },
+  "EcsSecurityGroup44008BF1": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for ECS tasks",
+    "GroupName": "card-hive-ecs-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/EcsSecurityGroup/Resource"
+   }
+  },
+  "EcsSecurityGroupfromCardHiveVpcStackAlbSecurityGroupE8EA4E293000FB4DE5E5": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow traffic from ALB only",
+    "FromPort": 3000,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "EcsSecurityGroup44008BF1",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AlbSecurityGroup86A59E99",
+      "GroupId"
+     ]
+    },
+    "ToPort": 3000
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/EcsSecurityGroup/from CardHiveVpcStackAlbSecurityGroupE8EA4E29:3000"
+   }
+  },
+  "DatabaseSecurityGroup7319C0F6": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for RDS database",
+    "GroupName": "card-hive-db-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "255.255.255.255/32",
+      "Description": "Disallow all traffic",
+      "FromPort": 252,
+      "IpProtocol": "icmp",
+      "ToPort": 86
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CardHiveVpc8A5A830F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/DatabaseSecurityGroup/Resource"
+   }
+  },
+  "DatabaseSecurityGroupfromCardHiveVpcStackEcsSecurityGroup1611E6FD54324DF80FD9": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow PostgreSQL from ECS tasks only",
+    "FromPort": 5432,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "DatabaseSecurityGroup7319C0F6",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "EcsSecurityGroup44008BF1",
+      "GroupId"
+     ]
+    },
+    "ToPort": 5432
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/DatabaseSecurityGroup/from CardHiveVpcStackEcsSecurityGroup1611E6FD:5432"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/32OQW+DMAyFf0vvIWP5BwxNFZctgqnXyQSXuYUExQ6oqvrfJ9apnLaT3/v8bD2jjXnW+Q4Wzlx3zgZq9bURcGcFC3+iM/p6mJwqj/5gS2VTO5BrUutRVrapOiTBD2gH3PjGCubgCISCf4RX8VrZdbyB7EFwgYuykWYQ3B5XXjB6fATuTX5dIQLua0QvqkGXIsllH0Oafjr8CyrfR2S+qRo5pOhQlYkljJs9+j9WNoaZOowvwKgKZpRGoCffrzfvSaYkN+VDh/rET7Mx2uQ6352YKIvJC42o6/v8BhfBYhV+AQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveVpcStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "VpcId": {
+   "Description": "VPC ID",
+   "Value": {
+    "Ref": "CardHiveVpc8A5A830F"
+   },
+   "Export": {
+    "Name": "CardHiveVpcId"
+   }
+  },
+  "VpcCidr": {
+   "Description": "VPC CIDR Block",
+   "Value": {
+    "Fn::GetAtt": [
+     "CardHiveVpc8A5A830F",
+     "CidrBlock"
+    ]
+   }
+  },
+  "ExportsOutputRefCardHiveVpcDatabaseSubnet1SubnetA6945F7D80132286": {
+   "Value": {
+    "Ref": "CardHiveVpcDatabaseSubnet1SubnetA6945F7D"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcDatabaseSubnet1SubnetA6945F7D80132286"
+   }
+  },
+  "ExportsOutputRefCardHiveVpcDatabaseSubnet2Subnet10872F28CD67447A": {
+   "Value": {
+    "Ref": "CardHiveVpcDatabaseSubnet2Subnet10872F28"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcDatabaseSubnet2Subnet10872F28CD67447A"
+   }
+  },
+  "ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseSecurityGroup7319C0F6",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+   }
+  },
+  "ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AlbSecurityGroup86A59E99",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
+   }
+  },
+  "ExportsOutputRefCardHiveVpcPublicSubnet1Subnet8BE4518396612213": {
+   "Value": {
+    "Ref": "CardHiveVpcPublicSubnet1Subnet8BE45183"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPublicSubnet1Subnet8BE4518396612213"
+   }
+  },
+  "ExportsOutputRefCardHiveVpcPublicSubnet2Subnet9DD5607FCF71CF7B": {
+   "Value": {
+    "Ref": "CardHiveVpcPublicSubnet2Subnet9DD5607F"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPublicSubnet2Subnet9DD5607FCF71CF7B"
+   }
+  },
+  "ExportsOutputRefCardHiveVpc8A5A830F5F21271F": {
+   "Value": {
+    "Ref": "CardHiveVpc8A5A830F"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpc8A5A830F5F21271F"
+   }
+  },
+  "ExportsOutputRefCardHiveVpcPrivateSubnet1SubnetFE099C746105060F": {
+   "Value": {
+    "Ref": "CardHiveVpcPrivateSubnet1SubnetFE099C74"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPrivateSubnet1SubnetFE099C746105060F"
+   }
+  },
+  "ExportsOutputRefCardHiveVpcPrivateSubnet2Subnet2E80B1E2173CAE9E": {
+   "Value": {
+    "Ref": "CardHiveVpcPrivateSubnet2Subnet2E80B1E2"
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPrivateSubnet2Subnet2E80B1E2173CAE9E"
+   }
+  },
+  "ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5": {
+   "Value": {
+    "Fn::GetAtt": [
+     "EcsSecurityGroup44008BF1",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveVpcStack:ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
