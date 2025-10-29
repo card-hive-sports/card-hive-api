@@ -1,5 +1,21 @@
 name: card-hive
 services:
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: cardhive
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: cardhive_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
   auth:
     build:
       context: .
@@ -7,3 +23,6 @@ services:
     container_name: auth
     ports:
       - "3000:3000"
+
+volumes:
+  postgres_data:

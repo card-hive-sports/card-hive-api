@@ -7,27 +7,33 @@ WORKDIR /app
 
 COPY tsconfig.base.json tsconfig.json nx.json eslint.config.mjs ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY libs/shared/database ./libs/shared/database
-COPY apps/auth-service/ ./apps/auth-service/
+COPY libs ./libs
+COPY apps ./apps
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm nx sync
+
+RUN npx prisma generate --schema=./libs/shared/database/prisma/schema.prisma
+
 RUN pnpm nx build auth-service
+RUN pnpm nx prune auth-service
 
 FROM docker.io/node:lts-alpine AS runner
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 ENV HOST=0.0.0.0
 ENV PORT=3000
+ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /app/apps/auth-service ./apps/auth-service
-COPY --from=builder /app/libs/shared/database ./libs/shared/database
+COPY .env ./
 
-COPY apps/auth-service/package.json ./
-COPY pnpm-workspace.yaml ./
+COPY --from=builder /app/apps/auth-service/dist/package.json /app/apps/auth-service/dist/pnpm-lock.yaml ./
+COPY --from=builder /app/apps/auth-service/dist ./dist
+COPY --from=builder /app/libs/shared/database/prisma/schema.prisma ./schema.prisma
 
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
+RUN npx prisma generate --schema=./schema.prisma
 
-CMD [ "node", "apps/auth-service/dist/main.js" ]
+CMD [ "node", "dist/main.js" ]
