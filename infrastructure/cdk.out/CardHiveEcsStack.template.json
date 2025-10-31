@@ -1,38 +1,10 @@
 {
- "Description": "ECS Fargate service with Application Load Balancer",
+ "Description": "CardHive ECS Fargate for Auth Service",
  "Resources": {
-  "AuthServiceRepository4B9590D7": {
-   "Type": "AWS::ECR::Repository",
-   "Properties": {
-    "ImageScanningConfiguration": {
-     "ScanOnPush": true
-    },
-    "ImageTagMutability": "MUTABLE",
-    "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep only last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
-    },
-    "RepositoryName": "card-hive/auth-service",
-    "Tags": [
-     {
-      "Key": "Environment",
-      "Value": "Production"
-     },
-     {
-      "Key": "ManagedBy",
-      "Value": "CDK"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete",
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/AuthServiceRepository/Resource"
-   }
-  },
-  "ClusterEB0386A7": {
+  "CardHiveAuthClusterB9CE2888": {
    "Type": "AWS::ECS::Cluster",
    "Properties": {
-    "ClusterName": "card-hive-cluster",
+    "ClusterName": "card-hive-auth",
     "ClusterSettings": [
      {
       "Name": "containerInsights",
@@ -45,38 +17,72 @@
       "Value": "Production"
      },
      {
-      "Key": "ManagedBy",
-      "Value": "CDK"
+      "Key": "Project",
+      "Value": "CardHive"
      }
     ]
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/Cluster/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthCluster/Resource"
    }
   },
-  "AuthServiceLogs1AF0638D": {
-   "Type": "AWS::Logs::LogGroup",
+  "CardHiveAuthServiceRepo2B1F229E": {
+   "Type": "AWS::ECR::Repository",
    "Properties": {
-    "LogGroupName": "/ecs/card-hive/auth-service",
-    "RetentionInDays": 7,
+    "ImageScanningConfiguration": {
+     "ScanOnPush": true
+    },
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "card-hive/auth-service",
     "Tags": [
      {
       "Key": "Environment",
       "Value": "Production"
      },
      {
-      "Key": "ManagedBy",
-      "Value": "CDK"
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthServiceRepo/Resource"
+   }
+  },
+  "CardHiveAppSecret63B8AC2F": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "Application secrets (JWT, etc)",
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "JWT_SECRET",
+     "IncludeSpace": false,
+     "PasswordLength": 64,
+     "SecretStringTemplate": "{\"JWT_EXPIRES_IN\":\"15m\",\"REFRESH_TOKEN_EXPIRES_IN\":\"7d\"}"
+    },
+    "Name": "card-hive-app-secrets",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
      }
     ]
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/AuthServiceLogs/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAppSecret/Resource"
    }
   },
-  "TaskExecutionRole250D2532": {
+  "CardHiveAuthTaskDefTaskRoleF6501E4C": {
    "Type": "AWS::IAM::Role",
    "Properties": {
     "AssumeRolePolicyDocument": {
@@ -91,164 +97,55 @@
      ],
      "Version": "2012-10-17"
     },
-    "Description": "Role for ECS to pull images and access secrets",
-    "RoleName": "card-hive-ecs-execution-role",
     "Tags": [
      {
       "Key": "Environment",
       "Value": "Production"
      },
      {
-      "Key": "ManagedBy",
-      "Value": "CDK"
+      "Key": "Project",
+      "Value": "CardHive"
      }
     ]
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/TaskExecutionRole/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthTaskDef/TaskRole/Resource"
    }
   },
-  "TaskExecutionRoleDefaultPolicyA84DD1B0": {
+  "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC": {
    "Type": "AWS::IAM::Policy",
    "Properties": {
     "PolicyDocument": {
      "Statement": [
-      {
-       "Action": [
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:BatchGetImage",
-        "ecr:GetAuthorizationToken",
-        "ecr:GetDownloadUrlForLayer"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      },
       {
        "Action": [
         "logs:CreateLogStream",
-        "logs:PutLogEvents"
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:PutLogEvents",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
        ],
        "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "AuthServiceLogs1AF0638D",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "Action": [
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:BatchGetImage",
-        "ecr:GetDownloadUrlForLayer"
-       ],
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "AuthServiceRepository4B9590D7",
-         "Arn"
-        ]
-       }
-      },
-      {
-       "Action": [
-        "secretsmanager:DescribeSecret",
-        "secretsmanager:GetSecretValue"
-       ],
-       "Effect": "Allow",
-       "Resource": [
-        "arn:aws:secretsmanager:us-east-1:765430960003:secret:card-hive/jwt/secret-??????",
-        {
-         "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseSecret86DBB7B353068790"
-        }
-       ]
+       "Resource": "*"
       }
      ],
      "Version": "2012-10-17"
     },
-    "PolicyName": "TaskExecutionRoleDefaultPolicyA84DD1B0",
+    "PolicyName": "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC",
     "Roles": [
      {
-      "Ref": "TaskExecutionRole250D2532"
+      "Ref": "CardHiveAuthTaskDefTaskRoleF6501E4C"
      }
     ]
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/TaskExecutionRole/DefaultPolicy/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthTaskDef/TaskRole/DefaultPolicy/Resource"
    }
   },
-  "TaskRole30FC0FBB": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "Description": "Role for the running container",
-    "RoleName": "card-hive-ecs-task-role",
-    "Tags": [
-     {
-      "Key": "Environment",
-      "Value": "Production"
-     },
-     {
-      "Key": "ManagedBy",
-      "Value": "CDK"
-     }
-    ]
-   },
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/TaskRole/Resource"
-   }
-  },
-  "TaskRoleDefaultPolicy07FC53DE": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "secretsmanager:GetSecretValue",
-       "Effect": "Allow",
-       "Resource": [
-        {
-         "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseSecret86DBB7B353068790"
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           {
-            "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseSecret86DBB7B353068790"
-           },
-           "-*"
-          ]
-         ]
-        }
-       ]
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "TaskRoleDefaultPolicy07FC53DE",
-    "Roles": [
-     {
-      "Ref": "TaskRole30FC0FBB"
-     }
-    ]
-   },
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/TaskRole/DefaultPolicy/Resource"
-   }
-  },
-  "TaskDef54694570": {
+  "CardHiveAuthTaskDef62CF4602": {
    "Type": "AWS::ECS::TaskDefinition",
    "Properties": {
     "ContainerDefinitions": [
@@ -263,12 +160,20 @@
         "Value": "3000"
        },
        {
-        "Name": "JWT_EXPIRES_IN",
-        "Value": "24h"
+        "Name": "DB_HOST",
+        "Value": {
+         "Fn::ImportValue": "CardHiveRDSStack:ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointAddressB4AB4488"
+        }
        },
        {
-        "Name": "REFRESH_TOKEN_EXPIRES_IN",
-        "Value": "7d"
+        "Name": "DB_PORT",
+        "Value": {
+         "Fn::ImportValue": "CardHiveRDSStack:ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointPort4E530206"
+        }
+       },
+       {
+        "Name": "DB_NAME",
+        "Value": "cardhive_dev"
        }
       ],
       "Essential": true,
@@ -294,7 +199,7 @@
              ":",
              {
               "Fn::GetAtt": [
-               "AuthServiceRepository4B9590D7",
+               "CardHiveAuthServiceRepo2B1F229E",
                "Arn"
               ]
              }
@@ -311,7 +216,7 @@
              ":",
              {
               "Fn::GetAtt": [
-               "AuthServiceRepository4B9590D7",
+               "CardHiveAuthServiceRepo2B1F229E",
                "Arn"
               ]
              }
@@ -325,7 +230,7 @@
          },
          "/",
          {
-          "Ref": "AuthServiceRepository4B9590D7"
+          "Ref": "CardHiveAuthServiceRepo2B1F229E"
          },
          ":latest"
         ]
@@ -335,7 +240,7 @@
        "LogDriver": "awslogs",
        "Options": {
         "awslogs-group": {
-         "Ref": "AuthServiceLogs1AF0638D"
+         "Ref": "CardHiveAuthServiceLogsE578C351"
         },
         "awslogs-stream-prefix": "auth-service",
         "awslogs-region": "us-east-1"
@@ -350,22 +255,74 @@
       ],
       "Secrets": [
        {
-        "Name": "DATABASE_URL",
+        "Name": "DB_USER",
         "ValueFrom": {
          "Fn::Join": [
           "",
           [
            {
-            "Fn::ImportValue": "CardHiveDatabaseStack:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+            "Fn::ImportValue": "CardHiveRDSStack:ExportsOutputRefCardHiveDbSecretD6F1B2B30554D94F"
            },
-           ":DATABASE_URL::"
+           ":username::"
+          ]
+         ]
+        }
+       },
+       {
+        "Name": "DB_PASSWORD",
+        "ValueFrom": {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "CardHiveRDSStack:ExportsOutputRefCardHiveDbSecretD6F1B2B30554D94F"
+           },
+           ":password::"
           ]
          ]
         }
        },
        {
         "Name": "JWT_SECRET",
-        "ValueFrom": "arn:aws:secretsmanager:us-east-1:765430960003:secret:card-hive/jwt/secret"
+        "ValueFrom": {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Ref": "CardHiveAppSecret63B8AC2F"
+           },
+           ":JWT_SECRET::"
+          ]
+         ]
+        }
+       },
+       {
+        "Name": "JWT_EXPIRES_IN",
+        "ValueFrom": {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Ref": "CardHiveAppSecret63B8AC2F"
+           },
+           ":JWT_EXPIRES_IN::"
+          ]
+         ]
+        }
+       },
+       {
+        "Name": "REFRESH_TOKEN_EXPIRES_IN",
+        "ValueFrom": {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Ref": "CardHiveAppSecret63B8AC2F"
+           },
+           ":REFRESH_TOKEN_EXPIRES_IN::"
+          ]
+         ]
+        }
        }
       ]
      }
@@ -373,11 +330,11 @@
     "Cpu": "256",
     "ExecutionRoleArn": {
      "Fn::GetAtt": [
-      "TaskExecutionRole250D2532",
+      "CardHiveAuthTaskDefExecutionRole1B0F1E0F",
       "Arn"
      ]
     },
-    "Family": "card-hive-auth-service",
+    "Family": "card-hive-auth",
     "Memory": "512",
     "NetworkMode": "awsvpc",
     "RequiresCompatibilities": [
@@ -389,22 +346,303 @@
       "Value": "Production"
      },
      {
-      "Key": "ManagedBy",
-      "Value": "CDK"
+      "Key": "Project",
+      "Value": "CardHive"
      }
     ],
     "TaskRoleArn": {
      "Fn::GetAtt": [
-      "TaskRole30FC0FBB",
+      "CardHiveAuthTaskDefTaskRoleF6501E4C",
       "Arn"
      ]
     }
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/TaskDef/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthTaskDef/Resource"
    }
   },
-  "LoadBalancerBE9EEC3A": {
+  "CardHiveAuthTaskDefExecutionRole1B0F1E0F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthTaskDef/ExecutionRole/Resource"
+   }
+  },
+  "CardHiveAuthTaskDefExecutionRoleDefaultPolicy50A756AB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CardHiveAuthServiceRepo2B1F229E",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "CardHiveAuthServiceLogsE578C351",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "CardHiveRDSStack:ExportsOutputRefCardHiveDbSecretD6F1B2B30554D94F"
+        },
+        {
+         "Ref": "CardHiveAppSecret63B8AC2F"
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CardHiveAuthTaskDefExecutionRoleDefaultPolicy50A756AB",
+    "Roles": [
+     {
+      "Ref": "CardHiveAuthTaskDefExecutionRole1B0F1E0F"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthTaskDef/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "CardHiveAuthServiceLogsE578C351": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/card-hive/auth-service",
+    "RetentionInDays": 7,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthServiceLogs/Resource"
+   }
+  },
+  "CardHiveAuthService9FBA42D2": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "CardHiveAuthClusterB9CE2888"
+    },
+    "DeploymentConfiguration": {
+     "Alarms": {
+      "AlarmNames": [],
+      "Enable": false,
+      "Rollback": false
+     },
+     "DeploymentCircuitBreaker": {
+      "Enable": true,
+      "Rollback": true
+     },
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DeploymentController": {
+     "Type": "ECS"
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "EnableExecuteCommand": true,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "auth-service",
+      "ContainerPort": 3000,
+      "TargetGroupArn": {
+       "Ref": "CardHiveAuthServiceTG144AF5C6"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
+       }
+      ],
+      "Subnets": [
+       {
+        "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpcPrivateSubnet1SubnetFE099C746105060F"
+       },
+       {
+        "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpcPrivateSubnet2Subnet2E80B1E2173CAE9E"
+       }
+      ]
+     }
+    },
+    "ServiceName": "card-hive-auth",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "TaskDefinition": {
+     "Ref": "CardHiveAuthTaskDef62CF4602"
+    }
+   },
+   "DependsOn": [
+    "CardHiveAuthServiceALBHttpListenerD931CAA2",
+    "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC",
+    "CardHiveAuthTaskDefTaskRoleF6501E4C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthService/Service"
+   }
+  },
+  "CardHiveAuthServiceTaskCountTarget31265425": {
+   "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+   "Properties": {
+    "MaxCapacity": 4,
+    "MinCapacity": 1,
+    "ResourceId": {
+     "Fn::Join": [
+      "",
+      [
+       "service/",
+       {
+        "Ref": "CardHiveAuthClusterB9CE2888"
+       },
+       "/",
+       {
+        "Fn::GetAtt": [
+         "CardHiveAuthService9FBA42D2",
+         "Name"
+        ]
+       }
+      ]
+     ]
+    },
+    "RoleARN": "arn:aws:iam::765430960003:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
+    "ScalableDimension": "ecs:service:DesiredCount",
+    "ServiceNamespace": "ecs"
+   },
+   "DependsOn": [
+    "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC",
+    "CardHiveAuthTaskDefTaskRoleF6501E4C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthService/TaskCount/Target/Resource"
+   }
+  },
+  "CardHiveAuthServiceTaskCountTargetCpuScaling40FC8FC0": {
+   "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+   "Properties": {
+    "PolicyName": "CardHiveECSStackCardHiveAuthServiceTaskCountTargetCpuScaling384BAD9C",
+    "PolicyType": "TargetTrackingScaling",
+    "ScalingTargetId": {
+     "Ref": "CardHiveAuthServiceTaskCountTarget31265425"
+    },
+    "TargetTrackingScalingPolicyConfiguration": {
+     "PredefinedMetricSpecification": {
+      "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+     },
+     "ScaleInCooldown": 60,
+     "ScaleOutCooldown": 60,
+     "TargetValue": 70
+    }
+   },
+   "DependsOn": [
+    "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC",
+    "CardHiveAuthTaskDefTaskRoleF6501E4C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthService/TaskCount/Target/CpuScaling/Resource"
+   }
+  },
+  "CardHiveAuthServiceTaskCountTargetMemoryScaling1A0E28C2": {
+   "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+   "Properties": {
+    "PolicyName": "CardHiveECSStackCardHiveAuthServiceTaskCountTargetMemoryScalingD5B4A744",
+    "PolicyType": "TargetTrackingScaling",
+    "ScalingTargetId": {
+     "Ref": "CardHiveAuthServiceTaskCountTarget31265425"
+    },
+    "TargetTrackingScalingPolicyConfiguration": {
+     "PredefinedMetricSpecification": {
+      "PredefinedMetricType": "ECSServiceAverageMemoryUtilization"
+     },
+     "ScaleInCooldown": 60,
+     "ScaleOutCooldown": 60,
+     "TargetValue": 80
+    }
+   },
+   "DependsOn": [
+    "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC",
+    "CardHiveAuthTaskDefTaskRoleF6501E4C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthService/TaskCount/Target/MemoryScaling/Resource"
+   }
+  },
+  "CardHiveAuthServiceALB2F393B8E": {
    "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
    "Properties": {
     "LoadBalancerAttributes": [
@@ -413,19 +651,19 @@
       "Value": "false"
      }
     ],
-    "Name": "card-hive-alb",
+    "Name": "card-hive-auth-alb",
     "Scheme": "internet-facing",
     "SecurityGroups": [
      {
-      "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
+      "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputFnGetAttCardHiveAlbSecurityGroup932FA60CGroupIdDF2B73FF"
      }
     ],
     "Subnets": [
      {
-      "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPublicSubnet1Subnet8BE4518396612213"
+      "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpcPublicSubnet1Subnet8BE4518396612213"
      },
      {
-      "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPublicSubnet2Subnet9DD5607FCF71CF7B"
+      "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpcPublicSubnet2Subnet9DD5607FCF71CF7B"
      }
     ],
     "Tags": [
@@ -434,48 +672,45 @@
       "Value": "Production"
      },
      {
-      "Key": "ManagedBy",
-      "Value": "CDK"
+      "Key": "Project",
+      "Value": "CardHive"
      }
     ],
     "Type": "application"
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/LoadBalancer/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthServiceALB/Resource"
    }
   },
-  "LoadBalancerHttpListener22970844": {
+  "CardHiveAuthServiceALBHttpListenerD931CAA2": {
    "Type": "AWS::ElasticLoadBalancingV2::Listener",
    "Properties": {
     "DefaultActions": [
      {
       "TargetGroupArn": {
-       "Ref": "TargetGroup3D7CD9B8"
+       "Ref": "CardHiveAuthServiceTG144AF5C6"
       },
       "Type": "forward"
      }
     ],
     "LoadBalancerArn": {
-     "Ref": "LoadBalancerBE9EEC3A"
+     "Ref": "CardHiveAuthServiceALB2F393B8E"
     },
     "Port": 80,
     "Protocol": "HTTP"
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/LoadBalancer/HttpListener/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthServiceALB/HttpListener/Resource"
    }
   },
-  "TargetGroup3D7CD9B8": {
+  "CardHiveAuthServiceTG144AF5C6": {
    "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
    "Properties": {
     "HealthCheckIntervalSeconds": 30,
-    "HealthCheckPath": "/api/health",
+    "HealthCheckPath": "/api",
     "HealthCheckTimeoutSeconds": 5,
     "HealthyThresholdCount": 2,
-    "Matcher": {
-     "HttpCode": "200"
-    },
-    "Name": "card-hive-tg",
+    "Name": "card-hive-auth-tg",
     "Port": 3000,
     "Protocol": "HTTP",
     "Tags": [
@@ -484,8 +719,8 @@
       "Value": "Production"
      },
      {
-      "Key": "ManagedBy",
-      "Value": "CDK"
+      "Key": "Project",
+      "Value": "CardHive"
      }
     ],
     "TargetGroupAttributes": [
@@ -501,191 +736,29 @@
     "TargetType": "ip",
     "UnhealthyThresholdCount": 3,
     "VpcId": {
-     "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpc8A5A830F5F21271F"
+     "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpc8A5A830F5F21271F"
     }
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/TargetGroup/Resource"
-   }
-  },
-  "ServiceD69D759B": {
-   "Type": "AWS::ECS::Service",
-   "Properties": {
-    "Cluster": {
-     "Ref": "ClusterEB0386A7"
-    },
-    "DeploymentConfiguration": {
-     "Alarms": {
-      "AlarmNames": [],
-      "Enable": false,
-      "Rollback": false
-     },
-     "DeploymentCircuitBreaker": {
-      "Enable": true,
-      "Rollback": true
-     },
-     "MaximumPercent": 200,
-     "MinimumHealthyPercent": 100
-    },
-    "DeploymentController": {
-     "Type": "ECS"
-    },
-    "DesiredCount": 2,
-    "EnableECSManagedTags": false,
-    "HealthCheckGracePeriodSeconds": 60,
-    "LaunchType": "FARGATE",
-    "LoadBalancers": [
-     {
-      "ContainerName": "auth-service",
-      "ContainerPort": 3000,
-      "TargetGroupArn": {
-       "Ref": "TargetGroup3D7CD9B8"
-      }
-     }
-    ],
-    "NetworkConfiguration": {
-     "AwsvpcConfiguration": {
-      "AssignPublicIp": "DISABLED",
-      "SecurityGroups": [
-       {
-        "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
-       }
-      ],
-      "Subnets": [
-       {
-        "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPrivateSubnet1SubnetFE099C746105060F"
-       },
-       {
-        "Fn::ImportValue": "CardHiveVpcStack:ExportsOutputRefCardHiveVpcPrivateSubnet2Subnet2E80B1E2173CAE9E"
-       }
-      ]
-     }
-    },
-    "ServiceName": "card-hive-auth-service",
-    "Tags": [
-     {
-      "Key": "Environment",
-      "Value": "Production"
-     },
-     {
-      "Key": "ManagedBy",
-      "Value": "CDK"
-     }
-    ],
-    "TaskDefinition": {
-     "Ref": "TaskDef54694570"
-    }
-   },
-   "DependsOn": [
-    "LoadBalancerHttpListener22970844",
-    "TaskRoleDefaultPolicy07FC53DE",
-    "TaskRole30FC0FBB"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/Service/Service"
-   }
-  },
-  "ServiceTaskCountTarget23E25614": {
-   "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-   "Properties": {
-    "MaxCapacity": 10,
-    "MinCapacity": 2,
-    "ResourceId": {
-     "Fn::Join": [
-      "",
-      [
-       "service/",
-       {
-        "Ref": "ClusterEB0386A7"
-       },
-       "/",
-       {
-        "Fn::GetAtt": [
-         "ServiceD69D759B",
-         "Name"
-        ]
-       }
-      ]
-     ]
-    },
-    "RoleARN": "arn:aws:iam::765430960003:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
-    "ScalableDimension": "ecs:service:DesiredCount",
-    "ServiceNamespace": "ecs"
-   },
-   "DependsOn": [
-    "TaskRoleDefaultPolicy07FC53DE",
-    "TaskRole30FC0FBB"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/Service/TaskCount/Target/Resource"
-   }
-  },
-  "ServiceTaskCountTargetCpuScalingCC8A5DF6": {
-   "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-   "Properties": {
-    "PolicyName": "CardHiveEcsStackServiceTaskCountTargetCpuScaling2DD1B35F",
-    "PolicyType": "TargetTrackingScaling",
-    "ScalingTargetId": {
-     "Ref": "ServiceTaskCountTarget23E25614"
-    },
-    "TargetTrackingScalingPolicyConfiguration": {
-     "PredefinedMetricSpecification": {
-      "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
-     },
-     "ScaleInCooldown": 60,
-     "ScaleOutCooldown": 60,
-     "TargetValue": 70
-    }
-   },
-   "DependsOn": [
-    "TaskRoleDefaultPolicy07FC53DE",
-    "TaskRole30FC0FBB"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/Service/TaskCount/Target/CpuScaling/Resource"
-   }
-  },
-  "ServiceTaskCountTargetMemoryScalingEA4B07C8": {
-   "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-   "Properties": {
-    "PolicyName": "CardHiveEcsStackServiceTaskCountTargetMemoryScaling6834BFD7",
-    "PolicyType": "TargetTrackingScaling",
-    "ScalingTargetId": {
-     "Ref": "ServiceTaskCountTarget23E25614"
-    },
-    "TargetTrackingScalingPolicyConfiguration": {
-     "PredefinedMetricSpecification": {
-      "PredefinedMetricType": "ECSServiceAverageMemoryUtilization"
-     },
-     "ScaleInCooldown": 60,
-     "ScaleOutCooldown": 60,
-     "TargetValue": 80
-    }
-   },
-   "DependsOn": [
-    "TaskRoleDefaultPolicy07FC53DE",
-    "TaskRole30FC0FBB"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/Service/TaskCount/Target/MemoryScaling/Resource"
+    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthServiceTG/Resource"
    }
   },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11QXU/DMAz8LXvPwsg/gCF4mQRq94681Iu8ZnGVj04oyn9HbVfa8XTn89nyWUmlnuVuA7ew1U27tXSSuY6gWwG38J1Re5kr7DhQZP8j9me3VEWgDjLvbQoR/dCb6Tt4AxGPENo3PJOjSOwGw3+FXQRy6FfafbZG35PGYWimtQYLJzuu3XNysQjLJsh8YPPhOXWDeeZFEFxlrtiOO0b8Ykt6DDGxItBCiKQtQ3MCC06TM72S+aXrLGkYDjowNK9jb8r4UK99FCK6u2fmq/4RvMH4d+eqLAIWG6TIQYMlZ2ReEg/m8RePygRHD7olZ+ppbon5IJQiKgyc/PTVzxS7FItw3KC8hKdeKal2cre5BKKtTy7SFWU14S/K2wGoKAIAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11R0W7DIAz8lr5T1uUPtk7bS6VNSd8nl7jIDYEIQ6sJ8e9TQrOke/Ld+ewzopJV9Sx3G7jxVrXd1tBJpiaA6gTc+DuhYpn2JnJAL/ZnO8N38BoCHoG7NzyTpUDOjob/irMByKJfaffZBv2VFI5DM2wUGDiZae3eRRuyQOVlqnFwTMH5n9G9sCwYlcfAPVjQ6GVqJl52jigLgl6m2pkpaKpfzpCaNhWUhXGaZTo4/eFdHMbOjLOAYTCkYLwcYnCswJDVMi23en1PfFRKOXpQHVndlLkl+0HIAg1wIGUctCcwYBVZfa1kelniDw7a16lX/uKBr33EAe3dM+NVvxz299QVzVnUyC768i2fMQwxZGFdi/LCT9eqktVO7jYXJtr6aAP1KOtSfwFR1O0jSgIAAA=="
    },
    "Metadata": {
-    "aws:cdk:path": "CardHiveEcsStack/CDKMetadata/Default"
+    "aws:cdk:path": "CardHiveECSStack/CDKMetadata/Default"
    }
   }
  },
  "Outputs": {
   "LoadBalancerDNS": {
-   "Description": "Application Load Balancer DNS",
+   "Description": "Load Balancer DNS Name",
    "Value": {
     "Fn::GetAtt": [
-     "LoadBalancerBE9EEC3A",
+     "CardHiveAuthServiceALB2F393B8E",
      "DNSName"
     ]
    },
@@ -693,25 +766,7 @@
     "Name": "CardHiveLoadBalancerDNS"
    }
   },
-  "ServiceName": {
-   "Description": "ECS Service Name",
-   "Value": {
-    "Fn::GetAtt": [
-     "ServiceD69D759B",
-     "Name"
-    ]
-   }
-  },
-  "ClusterName": {
-   "Description": "ECS Cluster Name",
-   "Value": {
-    "Ref": "ClusterEB0386A7"
-   },
-   "Export": {
-    "Name": "CardHiveClusterName"
-   }
-  },
-  "RepositoryUri": {
+  "EcrRepositoryUri": {
    "Description": "ECR Repository URI",
    "Value": {
     "Fn::Join": [
@@ -725,7 +780,7 @@
           ":",
           {
            "Fn::GetAtt": [
-            "AuthServiceRepository4B9590D7",
+            "CardHiveAuthServiceRepo2B1F229E",
             "Arn"
            ]
           }
@@ -742,7 +797,7 @@
           ":",
           {
            "Fn::GetAtt": [
-            "AuthServiceRepository4B9590D7",
+            "CardHiveAuthServiceRepo2B1F229E",
             "Arn"
            ]
           }
@@ -756,43 +811,34 @@
       },
       "/",
       {
-       "Ref": "AuthServiceRepository4B9590D7"
+       "Ref": "CardHiveAuthServiceRepo2B1F229E"
       }
      ]
     ]
    },
    "Export": {
-    "Name": "CardHiveRepositoryUri"
+    "Name": "CardHiveEcrRepositoryUri"
    }
   },
-  "ExportsOutputRefClusterEB0386A796A0E3FE": {
+  "ClusterName": {
+   "Description": "ECS Cluster Name",
    "Value": {
-    "Ref": "ClusterEB0386A7"
+    "Ref": "CardHiveAuthClusterB9CE2888"
    },
    "Export": {
-    "Name": "CardHiveEcsStack:ExportsOutputRefClusterEB0386A796A0E3FE"
+    "Name": "CardHiveClusterName"
    }
   },
-  "ExportsOutputFnGetAttServiceD69D759BName51127533": {
+  "ServiceName": {
+   "Description": "ECS Service Name",
    "Value": {
     "Fn::GetAtt": [
-     "ServiceD69D759B",
+     "CardHiveAuthService9FBA42D2",
      "Name"
     ]
    },
    "Export": {
-    "Name": "CardHiveEcsStack:ExportsOutputFnGetAttServiceD69D759BName51127533"
-   }
-  },
-  "ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574": {
-   "Value": {
-    "Fn::GetAtt": [
-     "LoadBalancerBE9EEC3A",
-     "LoadBalancerFullName"
-    ]
-   },
-   "Export": {
-    "Name": "CardHiveEcsStack:ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
+    "Name": "CardHiveServiceName"
    }
   }
  },

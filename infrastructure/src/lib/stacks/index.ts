@@ -1,4 +1,3 @@
-export * from './database.stack';
+export * from './rds.stack';
 export * from './ecs.stack';
-export * from './monitoring.stack';
 export * from './vpc.stack';

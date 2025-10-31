@@ -1,34 +1,32 @@
 {
   "version": "48.0.0",
   "artifacts": {
-    "CardHiveVpcStack.assets": {
+    "CardHiveVPCStack.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "CardHiveVpcStack.assets.json",
+        "file": "CardHiveVPCStack.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "CardHiveVpcStack": {
+    "CardHiveVPCStack": {
       "type": "aws:cloudformation:stack",
       "environment": "aws://765430960003/us-east-1",
       "properties": {
-        "templateFile": "CardHiveVpcStack.template.json",
+        "templateFile": "CardHiveVPCStack.template.json",
         "terminationProtection": false,
         "tags": {
-          "Component": "Network",
           "Environment": "Production",
-          "ManagedBy": "CDK",
           "Project": "CardHive"
         },
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-deploy-role-765430960003-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-cfn-exec-role-765430960003-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/d5c483c9df6b6ad80b2d5da8f9e987111fb719c176d5da974e9e89803d63545a.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/b06c44191e1e530973a5e2edb2dc585a0c64c9156a6a54a2838c6df35742567c.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "CardHiveVpcStack.assets"
+          "CardHiveVPCStack.assets"
         ],
         "lookupRole": {
           "arn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-lookup-role-765430960003-us-east-1",
@@ -37,24 +35,16 @@
         }
       },
       "dependencies": [
-        "CardHiveVpcStack.assets"
+        "CardHiveVPCStack.assets"
       ],
       "metadata": {
-        "/CardHiveVpcStack": [
+        "/CardHiveVPCStack": [
           {
             "type": "aws:cdk:stack-tags",
             "data": [
               {
-                "Key": "Component",
-                "Value": "Network"
-              },
-              {
                 "Key": "Environment",
                 "Value": "Production"
-              },
-              {
-                "Key": "ManagedBy",
-                "Value": "CDK"
               },
               {
                 "Key": "Project",
@@ -63,343 +53,365 @@
             ]
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/Resource": [
+        "/CardHiveVPCStack/CardHiveVpc/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpc8A5A830F"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet1/Subnet": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet1/Subnet": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet1Subnet8BE45183"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet1/RouteTable": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet1/RouteTable": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet1RouteTableF0159CA3"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet1/RouteTableAssociation": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet1/RouteTableAssociation": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet1RouteTableAssociation0AC46165"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet1/DefaultRoute": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet1/DefaultRoute": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet1DefaultRoute22D9181D"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet1/EIP": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet1/EIP": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet1EIP3547DE66"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet1/NATGateway": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet1/NATGateway": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet1NATGateway73E4C99F"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet2/Subnet": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet2/Subnet": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet2Subnet9DD5607F"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet2/RouteTable": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet2/RouteTable": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet2RouteTableB948E874"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet2/RouteTableAssociation": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet2/RouteTableAssociation": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet2RouteTableAssociationE5EDEA10"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PublicSubnet2/DefaultRoute": [
+        "/CardHiveVPCStack/CardHiveVpc/PublicSubnet2/DefaultRoute": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPublicSubnet2DefaultRouteF6048F59"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/Subnet": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet1/Subnet": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet1SubnetFE099C74"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/RouteTable": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet1/RouteTable": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet1RouteTable52CCD01B"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/RouteTableAssociation": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet1/RouteTableAssociation": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet1RouteTableAssociationF7381E2D"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet1/DefaultRoute": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet1/DefaultRoute": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet1DefaultRouteACCE6554"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/Subnet": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet2/Subnet": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet2Subnet2E80B1E2"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/RouteTable": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet2/RouteTable": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet2RouteTable68A9A67F"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/RouteTableAssociation": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet2/RouteTableAssociation": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet2RouteTableAssociationE5DC8C75"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/PrivateSubnet2/DefaultRoute": [
+        "/CardHiveVPCStack/CardHiveVpc/PrivateSubnet2/DefaultRoute": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcPrivateSubnet2DefaultRoute95B01AAF"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1/Subnet": [
+        "/CardHiveVPCStack/CardHiveVpc/IsolatedSubnet1/Subnet": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CardHiveVpcDatabaseSubnet1SubnetA6945F7D"
+            "data": "CardHiveVpcIsolatedSubnet1Subnet7BE151B1"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1/RouteTable": [
+        "/CardHiveVPCStack/CardHiveVpc/IsolatedSubnet1/RouteTable": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CardHiveVpcDatabaseSubnet1RouteTable5F4A0709"
+            "data": "CardHiveVpcIsolatedSubnet1RouteTable65BACA50"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/DatabaseSubnet1/RouteTableAssociation": [
+        "/CardHiveVPCStack/CardHiveVpc/IsolatedSubnet1/RouteTableAssociation": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CardHiveVpcDatabaseSubnet1RouteTableAssociation629DC5B6"
+            "data": "CardHiveVpcIsolatedSubnet1RouteTableAssociation1FA7567A"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2/Subnet": [
+        "/CardHiveVPCStack/CardHiveVpc/IsolatedSubnet2/Subnet": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CardHiveVpcDatabaseSubnet2Subnet10872F28"
+            "data": "CardHiveVpcIsolatedSubnet2SubnetE104EF45"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2/RouteTable": [
+        "/CardHiveVPCStack/CardHiveVpc/IsolatedSubnet2/RouteTable": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CardHiveVpcDatabaseSubnet2RouteTable4246D320"
+            "data": "CardHiveVpcIsolatedSubnet2RouteTable2847B105"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/DatabaseSubnet2/RouteTableAssociation": [
+        "/CardHiveVPCStack/CardHiveVpc/IsolatedSubnet2/RouteTableAssociation": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "CardHiveVpcDatabaseSubnet2RouteTableAssociation2226C576"
+            "data": "CardHiveVpcIsolatedSubnet2RouteTableAssociationC6258967"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/IGW": [
+        "/CardHiveVPCStack/CardHiveVpc/IGW": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcIGW4D5AB0F4"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/VPCGW": [
+        "/CardHiveVPCStack/CardHiveVpc/VPCGW": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcVPCGW19111E57"
           }
         ],
-        "/CardHiveVpcStack/CardHiveVpc/RestrictDefaultSecurityGroupCustomResource/Default": [
+        "/CardHiveVPCStack/CardHiveVpc/RestrictDefaultSecurityGroupCustomResource/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveVpcRestrictDefaultSecurityGroupCustomResource2068AB3B"
           }
         ],
-        "/CardHiveVpcStack/Custom::VpcRestrictDefaultSGCustomResourceProvider": [
+        "/CardHiveVPCStack/Custom::VpcRestrictDefaultSGCustomResourceProvider": [
           {
             "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
             "data": true
           }
         ],
-        "/CardHiveVpcStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role": [
+        "/CardHiveVPCStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
           }
         ],
-        "/CardHiveVpcStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler": [
+        "/CardHiveVPCStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E"
           }
         ],
-        "/CardHiveVpcStack/AlbSecurityGroup/Resource": [
+        "/CardHiveVPCStack/CardHiveAlbSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AlbSecurityGroup86A59E99"
+            "data": "CardHiveAlbSecurityGroup932FA60C"
           }
         ],
-        "/CardHiveVpcStack/EcsSecurityGroup/Resource": [
+        "/CardHiveVPCStack/EcsSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "EcsSecurityGroup44008BF1"
           }
         ],
-        "/CardHiveVpcStack/EcsSecurityGroup/from CardHiveVpcStackAlbSecurityGroupE8EA4E29:3000": [
+        "/CardHiveVPCStack/EcsSecurityGroup/from CardHiveVPCStackCardHiveAlbSecurityGroupB05C1F4C:3000": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "EcsSecurityGroupfromCardHiveVpcStackAlbSecurityGroupE8EA4E293000FB4DE5E5"
+            "data": "EcsSecurityGroupfromCardHiveVPCStackCardHiveAlbSecurityGroupB05C1F4C3000FE5F63C2"
           }
         ],
-        "/CardHiveVpcStack/DatabaseSecurityGroup/Resource": [
+        "/CardHiveVPCStack/DatabaseSecurityGroup/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "DatabaseSecurityGroup7319C0F6"
           }
         ],
-        "/CardHiveVpcStack/DatabaseSecurityGroup/from CardHiveVpcStackEcsSecurityGroup1611E6FD:5432": [
+        "/CardHiveVPCStack/DatabaseSecurityGroup/from CardHiveVPCStackEcsSecurityGroup560F1F8C:5432": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseSecurityGroupfromCardHiveVpcStackEcsSecurityGroup1611E6FD54324DF80FD9"
+            "data": "DatabaseSecurityGroupfromCardHiveVPCStackEcsSecurityGroup560F1F8C54323FC66F7F"
           }
         ],
-        "/CardHiveVpcStack/VpcId": [
+        "/CardHiveVPCStack/VpcFlowLog/IAMRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "VpcId"
+            "data": "VpcFlowLogIAMRoleB4DCB624"
           }
         ],
-        "/CardHiveVpcStack/VpcCidr": [
+        "/CardHiveVPCStack/VpcFlowLog/IAMRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "VpcCidr"
+            "data": "VpcFlowLogIAMRoleDefaultPolicy7533133B"
           }
         ],
-        "/CardHiveVpcStack/CDKMetadata/Default": [
+        "/CardHiveVPCStack/VpcFlowLog/LogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcFlowLogLogGroupBB186289"
+          }
+        ],
+        "/CardHiveVPCStack/VpcFlowLog/FlowLog": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcFlowLogF72230C7"
+          }
+        ],
+        "/CardHiveVPCStack/VpcID": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcID"
+          }
+        ],
+        "/CardHiveVPCStack/VpcCIDR": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "VpcCIDR"
+          }
+        ],
+        "/CardHiveVPCStack/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
           }
         ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpcDatabaseSubnet1SubnetA6945F7D\"}": [
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpcIsolatedSubnet1Subnet7BE151B1\"}": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefCardHiveVpcDatabaseSubnet1SubnetA6945F7D80132286"
+            "data": "ExportsOutputRefCardHiveVpcIsolatedSubnet1Subnet7BE151B1F6B2F0E4"
           }
         ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpcDatabaseSubnet2Subnet10872F28\"}": [
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpcIsolatedSubnet2SubnetE104EF45\"}": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefCardHiveVpcDatabaseSubnet2Subnet10872F28CD67447A"
+            "data": "ExportsOutputRefCardHiveVpcIsolatedSubnet2SubnetE104EF4580838D8C"
           }
         ],
-        "/CardHiveVpcStack/Exports/Output{\"Fn::GetAtt\":[\"DatabaseSecurityGroup7319C0F6\",\"GroupId\"]}": [
+        "/CardHiveVPCStack/Exports/Output{\"Fn::GetAtt\":[\"DatabaseSecurityGroup7319C0F6\",\"GroupId\"]}": [
           {
             "type": "aws:cdk:logicalId",
             "data": "ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
           }
         ],
-        "/CardHiveVpcStack/Exports/Output{\"Fn::GetAtt\":[\"AlbSecurityGroup86A59E99\",\"GroupId\"]}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputFnGetAttAlbSecurityGroup86A59E99GroupIdE3A37BC7"
-          }
-        ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpcPublicSubnet1Subnet8BE45183\"}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefCardHiveVpcPublicSubnet1Subnet8BE4518396612213"
-          }
-        ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpcPublicSubnet2Subnet9DD5607F\"}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefCardHiveVpcPublicSubnet2Subnet9DD5607FCF71CF7B"
-          }
-        ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpc8A5A830F\"}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefCardHiveVpc8A5A830F5F21271F"
-          }
-        ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpcPrivateSubnet1SubnetFE099C74\"}": [
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpcPrivateSubnet1SubnetFE099C74\"}": [
           {
             "type": "aws:cdk:logicalId",
             "data": "ExportsOutputRefCardHiveVpcPrivateSubnet1SubnetFE099C746105060F"
           }
         ],
-        "/CardHiveVpcStack/Exports/Output{\"Ref\":\"CardHiveVpcPrivateSubnet2Subnet2E80B1E2\"}": [
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpcPrivateSubnet2Subnet2E80B1E2\"}": [
           {
             "type": "aws:cdk:logicalId",
             "data": "ExportsOutputRefCardHiveVpcPrivateSubnet2Subnet2E80B1E2173CAE9E"
           }
         ],
-        "/CardHiveVpcStack/Exports/Output{\"Fn::GetAtt\":[\"EcsSecurityGroup44008BF1\",\"GroupId\"]}": [
+        "/CardHiveVPCStack/Exports/Output{\"Fn::GetAtt\":[\"EcsSecurityGroup44008BF1\",\"GroupId\"]}": [
           {
             "type": "aws:cdk:logicalId",
             "data": "ExportsOutputFnGetAttEcsSecurityGroup44008BF1GroupIdDE2CA5C5"
           }
         ],
-        "/CardHiveVpcStack/BootstrapVersion": [
+        "/CardHiveVPCStack/Exports/Output{\"Fn::GetAtt\":[\"CardHiveAlbSecurityGroup932FA60C\",\"GroupId\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttCardHiveAlbSecurityGroup932FA60CGroupIdDF2B73FF"
+          }
+        ],
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpcPublicSubnet1Subnet8BE45183\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefCardHiveVpcPublicSubnet1Subnet8BE4518396612213"
+          }
+        ],
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpcPublicSubnet2Subnet9DD5607F\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefCardHiveVpcPublicSubnet2Subnet9DD5607FCF71CF7B"
+          }
+        ],
+        "/CardHiveVPCStack/Exports/Output{\"Ref\":\"CardHiveVpc8A5A830F\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefCardHiveVpc8A5A830F5F21271F"
+          }
+        ],
+        "/CardHiveVPCStack/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "BootstrapVersion"
           }
         ],
-        "/CardHiveVpcStack/CheckBootstrapVersion": [
+        "/CardHiveVPCStack/CheckBootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
         ]
       },
-      "displayName": "CardHiveVpcStack"
+      "displayName": "CardHiveVPCStack"
     },
-    "CardHiveDatabaseStack.assets": {
+    "CardHiveRDSStack.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "CardHiveDatabaseStack.assets.json",
+        "file": "CardHiveRDSStack.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "CardHiveDatabaseStack": {
+    "CardHiveRDSStack": {
       "type": "aws:cloudformation:stack",
       "environment": "aws://765430960003/us-east-1",
       "properties": {
-        "templateFile": "CardHiveDatabaseStack.template.json",
+        "templateFile": "CardHiveRDSStack.template.json",
         "terminationProtection": false,
         "tags": {
-          "Component": "Database",
           "Environment": "Production",
-          "ManagedBy": "CDK",
           "Project": "CardHive"
         },
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-deploy-role-765430960003-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-cfn-exec-role-765430960003-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/260a49fdfe6708233b578645ac29cbcd521ad2b9ce9c349e097e82dd03fe5b09.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/57fd1d3840acd610c492caaeb0118de3026ccfdcb8f1d4767e57a7290bcb0d37.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "CardHiveDatabaseStack.assets"
+          "CardHiveRDSStack.assets"
         ],
         "lookupRole": {
           "arn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-lookup-role-765430960003-us-east-1",
@@ -408,25 +420,17 @@
         }
       },
       "dependencies": [
-        "CardHiveVpcStack",
-        "CardHiveDatabaseStack.assets"
+        "CardHiveVPCStack",
+        "CardHiveRDSStack.assets"
       ],
       "metadata": {
-        "/CardHiveDatabaseStack": [
+        "/CardHiveRDSStack": [
           {
             "type": "aws:cdk:stack-tags",
             "data": [
               {
-                "Key": "Component",
-                "Value": "Database"
-              },
-              {
                 "Key": "Environment",
                 "Value": "Production"
-              },
-              {
-                "Key": "ManagedBy",
-                "Value": "CDK"
               },
               {
                 "Key": "Project",
@@ -435,145 +439,137 @@
             ]
           }
         ],
-        "/CardHiveDatabaseStack/DatabaseSecret/Resource": [
+        "/CardHiveRDSStack/CardHiveDbSecret/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseSecret86DBB7B3"
+            "data": "CardHiveDbSecretD6F1B2B3"
           }
         ],
-        "/CardHiveDatabaseStack/DatabaseSecret/Attachment/Resource": [
+        "/CardHiveRDSStack/CardHiveDbSecret/Attachment/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseSecretAttachment9A63A3D4"
+            "data": "CardHiveDbSecretAttachmentAD54F63F"
           }
         ],
-        "/CardHiveDatabaseStack/Database/SubnetGroup/Default": [
+        "/CardHiveRDSStack/CardHivePostgresInstance/SubnetGroup/Default": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseSubnetGroup7D60F180"
+            "data": "CardHivePostgresInstanceSubnetGroup610E90DA"
           }
         ],
-        "/CardHiveDatabaseStack/Database/Resource": [
+        "/CardHiveRDSStack/CardHivePostgresInstance/MonitoringRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseB269D8BB"
+            "data": "CardHivePostgresInstanceMonitoringRoleB9C3CAF6"
           }
         ],
-        "/CardHiveDatabaseStack/Database/LogRetentionpostgresql/Resource": [
+        "/CardHiveRDSStack/CardHivePostgresInstance/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseLogRetentionpostgresqlFBE8A947"
+            "data": "CardHivePostgresInstance0F2E6DA3"
           }
         ],
-        "/CardHiveDatabaseStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource": [
+        "/CardHiveRDSStack/CardHiveDbCpuAlarm/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+            "data": "CardHiveDbCpuAlarm70C604D7"
           }
         ],
-        "/CardHiveDatabaseStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource": [
+        "/CardHiveRDSStack/CardHiveDbStorageAlarm/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB"
+            "data": "CardHiveDbStorageAlarm3C26DFAA"
           }
         ],
-        "/CardHiveDatabaseStack/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource": [
+        "/CardHiveRDSStack/DbEndpoint": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A"
+            "data": "DbEndpoint"
           }
         ],
-        "/CardHiveDatabaseStack/DatabaseUrlSecret/Resource": [
+        "/CardHiveRDSStack/DbPort": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseUrlSecretFA7DE062"
+            "data": "DbPort"
           }
         ],
-        "/CardHiveDatabaseStack/DatabaseEndpoint": [
+        "/CardHiveRDSStack/DbSecretArn": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseEndpoint"
+            "data": "DbSecretArn"
           }
         ],
-        "/CardHiveDatabaseStack/DatabaseSecretArn": [
+        "/CardHiveRDSStack/DbSecurityGroupID": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "DatabaseSecretArn"
+            "data": "DbSecurityGroupID"
           }
         ],
-        "/CardHiveDatabaseStack/DatabaseUrlSecretArn": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "DatabaseUrlSecretArn"
-          }
-        ],
-        "/CardHiveDatabaseStack/DatabaseName": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "DatabaseName"
-          }
-        ],
-        "/CardHiveDatabaseStack/CDKMetadata/Default": [
+        "/CardHiveRDSStack/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
           }
         ],
-        "/CardHiveDatabaseStack/Exports/Output{\"Ref\":\"DatabaseSecret86DBB7B3\"}": [
+        "/CardHiveRDSStack/Exports/Output{\"Fn::GetAtt\":[\"CardHivePostgresInstance0F2E6DA3\",\"Endpoint.Address\"]}": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefDatabaseSecret86DBB7B353068790"
+            "data": "ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointAddressB4AB4488"
           }
         ],
-        "/CardHiveDatabaseStack/Exports/Output{\"Ref\":\"DatabaseB269D8BB\"}": [
+        "/CardHiveRDSStack/Exports/Output{\"Fn::GetAtt\":[\"CardHivePostgresInstance0F2E6DA3\",\"Endpoint.Port\"]}": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+            "data": "ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointPort4E530206"
           }
         ],
-        "/CardHiveDatabaseStack/BootstrapVersion": [
+        "/CardHiveRDSStack/Exports/Output{\"Ref\":\"CardHiveDbSecretD6F1B2B3\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefCardHiveDbSecretD6F1B2B30554D94F"
+          }
+        ],
+        "/CardHiveRDSStack/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "BootstrapVersion"
           }
         ],
-        "/CardHiveDatabaseStack/CheckBootstrapVersion": [
+        "/CardHiveRDSStack/CheckBootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
         ]
       },
-      "displayName": "CardHiveDatabaseStack"
+      "displayName": "CardHiveRDSStack"
     },
-    "CardHiveEcsStack.assets": {
+    "CardHiveECSStack.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "CardHiveEcsStack.assets.json",
+        "file": "CardHiveECSStack.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "CardHiveEcsStack": {
+    "CardHiveECSStack": {
       "type": "aws:cloudformation:stack",
       "environment": "aws://765430960003/us-east-1",
       "properties": {
-        "templateFile": "CardHiveEcsStack.template.json",
+        "templateFile": "CardHiveECSStack.template.json",
         "terminationProtection": false,
         "tags": {
-          "Component": "Compute",
           "Environment": "Production",
-          "ManagedBy": "CDK",
           "Project": "CardHive"
         },
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-deploy-role-765430960003-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-cfn-exec-role-765430960003-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/67f79bb5f094b84c1353cd3331518b89696069b58350a9e700c98c2972cf77c1.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/a94106fbba37e363e795f69149dce3d92e58c17b7f7fd06374237858c569f3d9.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "CardHiveEcsStack.assets"
+          "CardHiveECSStack.assets"
         ],
         "lookupRole": {
           "arn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-lookup-role-765430960003-us-east-1",
@@ -582,26 +578,18 @@
         }
       },
       "dependencies": [
-        "CardHiveVpcStack",
-        "CardHiveDatabaseStack",
-        "CardHiveEcsStack.assets"
+        "CardHiveVPCStack",
+        "CardHiveRDSStack",
+        "CardHiveECSStack.assets"
       ],
       "metadata": {
-        "/CardHiveEcsStack": [
+        "/CardHiveECSStack": [
           {
             "type": "aws:cdk:stack-tags",
             "data": [
               {
-                "Key": "Component",
-                "Value": "Compute"
-              },
-              {
                 "Key": "Environment",
                 "Value": "Production"
-              },
-              {
-                "Key": "ManagedBy",
-                "Value": "CDK"
               },
               {
                 "Key": "Project",
@@ -610,297 +598,146 @@
             ]
           }
         ],
-        "/CardHiveEcsStack/AuthServiceRepository/Resource": [
+        "/CardHiveECSStack/CardHiveAuthCluster/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AuthServiceRepository4B9590D7"
+            "data": "CardHiveAuthClusterB9CE2888"
           }
         ],
-        "/CardHiveEcsStack/Cluster/Resource": [
+        "/CardHiveECSStack/CardHiveAuthServiceRepo/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ClusterEB0386A7"
+            "data": "CardHiveAuthServiceRepo2B1F229E"
           }
         ],
-        "/CardHiveEcsStack/AuthServiceLogs/Resource": [
+        "/CardHiveECSStack/CardHiveAppSecret/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "AuthServiceLogs1AF0638D"
+            "data": "CardHiveAppSecret63B8AC2F"
           }
         ],
-        "/CardHiveEcsStack/TaskExecutionRole/Resource": [
+        "/CardHiveECSStack/CardHiveAuthTaskDef/TaskRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "TaskExecutionRole250D2532"
+            "data": "CardHiveAuthTaskDefTaskRoleF6501E4C"
           }
         ],
-        "/CardHiveEcsStack/TaskExecutionRole/DefaultPolicy/Resource": [
+        "/CardHiveECSStack/CardHiveAuthTaskDef/TaskRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "TaskExecutionRoleDefaultPolicyA84DD1B0"
+            "data": "CardHiveAuthTaskDefTaskRoleDefaultPolicyFE1B1BFC"
           }
         ],
-        "/CardHiveEcsStack/TaskRole/Resource": [
+        "/CardHiveECSStack/CardHiveAuthTaskDef/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "TaskRole30FC0FBB"
+            "data": "CardHiveAuthTaskDef62CF4602"
           }
         ],
-        "/CardHiveEcsStack/TaskRole/DefaultPolicy/Resource": [
+        "/CardHiveECSStack/CardHiveAuthTaskDef/ExecutionRole/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "TaskRoleDefaultPolicy07FC53DE"
+            "data": "CardHiveAuthTaskDefExecutionRole1B0F1E0F"
           }
         ],
-        "/CardHiveEcsStack/TaskDef/Resource": [
+        "/CardHiveECSStack/CardHiveAuthTaskDef/ExecutionRole/DefaultPolicy/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "TaskDef54694570"
+            "data": "CardHiveAuthTaskDefExecutionRoleDefaultPolicy50A756AB"
           }
         ],
-        "/CardHiveEcsStack/LoadBalancer/Resource": [
+        "/CardHiveECSStack/CardHiveAuthServiceLogs/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LoadBalancerBE9EEC3A"
+            "data": "CardHiveAuthServiceLogsE578C351"
           }
         ],
-        "/CardHiveEcsStack/LoadBalancer/HttpListener/Resource": [
+        "/CardHiveECSStack/CardHiveAuthService/Service": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "LoadBalancerHttpListener22970844"
+            "data": "CardHiveAuthService9FBA42D2"
           }
         ],
-        "/CardHiveEcsStack/TargetGroup/Resource": [
+        "/CardHiveECSStack/CardHiveAuthService/TaskCount/Target/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "TargetGroup3D7CD9B8"
+            "data": "CardHiveAuthServiceTaskCountTarget31265425"
           }
         ],
-        "/CardHiveEcsStack/Service/Service": [
+        "/CardHiveECSStack/CardHiveAuthService/TaskCount/Target/CpuScaling/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ServiceD69D759B"
+            "data": "CardHiveAuthServiceTaskCountTargetCpuScaling40FC8FC0"
           }
         ],
-        "/CardHiveEcsStack/Service/TaskCount/Target/Resource": [
+        "/CardHiveECSStack/CardHiveAuthService/TaskCount/Target/MemoryScaling/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ServiceTaskCountTarget23E25614"
+            "data": "CardHiveAuthServiceTaskCountTargetMemoryScaling1A0E28C2"
           }
         ],
-        "/CardHiveEcsStack/Service/TaskCount/Target/CpuScaling/Resource": [
+        "/CardHiveECSStack/CardHiveAuthServiceALB/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ServiceTaskCountTargetCpuScalingCC8A5DF6"
+            "data": "CardHiveAuthServiceALB2F393B8E"
           }
         ],
-        "/CardHiveEcsStack/Service/TaskCount/Target/MemoryScaling/Resource": [
+        "/CardHiveECSStack/CardHiveAuthServiceALB/HttpListener/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ServiceTaskCountTargetMemoryScalingEA4B07C8"
+            "data": "CardHiveAuthServiceALBHttpListenerD931CAA2"
           }
         ],
-        "/CardHiveEcsStack/LoadBalancerDNS": [
+        "/CardHiveECSStack/CardHiveAuthServiceTG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CardHiveAuthServiceTG144AF5C6"
+          }
+        ],
+        "/CardHiveECSStack/LoadBalancerDNS": [
           {
             "type": "aws:cdk:logicalId",
             "data": "LoadBalancerDNS"
           }
         ],
-        "/CardHiveEcsStack/ServiceName": [
+        "/CardHiveECSStack/EcrRepositoryUri": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "ServiceName"
+            "data": "EcrRepositoryUri"
           }
         ],
-        "/CardHiveEcsStack/ClusterName": [
+        "/CardHiveECSStack/ClusterName": [
           {
             "type": "aws:cdk:logicalId",
             "data": "ClusterName"
           }
         ],
-        "/CardHiveEcsStack/RepositoryUri": [
+        "/CardHiveECSStack/ServiceName": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "RepositoryUri"
+            "data": "ServiceName"
           }
         ],
-        "/CardHiveEcsStack/CDKMetadata/Default": [
+        "/CardHiveECSStack/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
           }
         ],
-        "/CardHiveEcsStack/Exports/Output{\"Ref\":\"ClusterEB0386A7\"}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputRefClusterEB0386A796A0E3FE"
-          }
-        ],
-        "/CardHiveEcsStack/Exports/Output{\"Fn::GetAtt\":[\"ServiceD69D759B\",\"Name\"]}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputFnGetAttServiceD69D759BName51127533"
-          }
-        ],
-        "/CardHiveEcsStack/Exports/Output{\"Fn::GetAtt\":[\"LoadBalancerBE9EEC3A\",\"LoadBalancerFullName\"]}": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "ExportsOutputFnGetAttLoadBalancerBE9EEC3ALoadBalancerFullNameC4A7F574"
-          }
-        ],
-        "/CardHiveEcsStack/BootstrapVersion": [
+        "/CardHiveECSStack/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "BootstrapVersion"
           }
         ],
-        "/CardHiveEcsStack/CheckBootstrapVersion": [
+        "/CardHiveECSStack/CheckBootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
         ]
       },
-      "displayName": "CardHiveEcsStack"
-    },
-    "CardHiveMonitoringStack.assets": {
-      "type": "cdk:asset-manifest",
-      "properties": {
-        "file": "CardHiveMonitoringStack.assets.json",
-        "requiresBootstrapStackVersion": 6,
-        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
-      }
-    },
-    "CardHiveMonitoringStack": {
-      "type": "aws:cloudformation:stack",
-      "environment": "aws://765430960003/us-east-1",
-      "properties": {
-        "templateFile": "CardHiveMonitoringStack.template.json",
-        "terminationProtection": false,
-        "tags": {
-          "Component": "Monitoring",
-          "Environment": "Production",
-          "ManagedBy": "CDK",
-          "Project": "CardHive"
-        },
-        "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-deploy-role-765430960003-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-cfn-exec-role-765430960003-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/300423fbe75a2a6ac271edc614efce2e03c9043914845d2d42045ce0c41677e4.json",
-        "requiresBootstrapStackVersion": 6,
-        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
-        "additionalDependencies": [
-          "CardHiveMonitoringStack.assets"
-        ],
-        "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-lookup-role-765430960003-us-east-1",
-          "requiresBootstrapStackVersion": 8,
-          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
-        }
-      },
-      "dependencies": [
-        "CardHiveEcsStack",
-        "CardHiveDatabaseStack",
-        "CardHiveMonitoringStack.assets"
-      ],
-      "metadata": {
-        "/CardHiveMonitoringStack": [
-          {
-            "type": "aws:cdk:stack-tags",
-            "data": [
-              {
-                "Key": "Component",
-                "Value": "Monitoring"
-              },
-              {
-                "Key": "Environment",
-                "Value": "Production"
-              },
-              {
-                "Key": "ManagedBy",
-                "Value": "CDK"
-              },
-              {
-                "Key": "Project",
-                "Value": "CardHive"
-              }
-            ]
-          }
-        ],
-        "/CardHiveMonitoringStack/Dashboard/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "Dashboard9E4231ED"
-          }
-        ],
-        "/CardHiveMonitoringStack/HighCpuAlarm/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "HighCpuAlarm40723000"
-          }
-        ],
-        "/CardHiveMonitoringStack/HighMemoryAlarm/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "HighMemoryAlarmB77DAB20"
-          }
-        ],
-        "/CardHiveMonitoringStack/HighErrorRateAlarm/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "HighErrorRateAlarm9E2FAEE9"
-          }
-        ],
-        "/CardHiveMonitoringStack/HighResponseTimeAlarm/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "HighResponseTimeAlarmCB9F63BA"
-          }
-        ],
-        "/CardHiveMonitoringStack/DatabaseHighCpuAlarm/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "DatabaseHighCpuAlarm7C843113"
-          }
-        ],
-        "/CardHiveMonitoringStack/GuardDutyDetector": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "GuardDutyDetector"
-          }
-        ],
-        "/CardHiveMonitoringStack/DashboardUrl": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "DashboardUrl"
-          }
-        ],
-        "/CardHiveMonitoringStack/GuardDutyDetectorId": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "GuardDutyDetectorId"
-          }
-        ],
-        "/CardHiveMonitoringStack/CDKMetadata/Default": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CDKMetadata"
-          }
-        ],
-        "/CardHiveMonitoringStack/BootstrapVersion": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "BootstrapVersion"
-          }
-        ],
-        "/CardHiveMonitoringStack/CheckBootstrapVersion": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CheckBootstrapVersion"
-          }
-        ]
-      },
-      "displayName": "CardHiveMonitoringStack"
+      "displayName": "CardHiveECSStack"
     },
     "Tree": {
       "type": "cdk:tree",
