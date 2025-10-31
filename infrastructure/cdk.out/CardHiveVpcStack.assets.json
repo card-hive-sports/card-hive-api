@@ -2,7 +2,7 @@
   "version": "48.0.0",
   "files": {
     "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200": {
-      "displayName": "CardHiveVpcStack/Custom::VpcRestrictDefaultSGCustomResourceProvider Code",
+      "displayName": "CardHiveVPCStack/Custom::VpcRestrictDefaultSGCustomResourceProvider Code",
       "source": {
         "path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
         "packaging": "zip"
@@ -16,16 +16,16 @@
         }
       }
     },
-    "d5c483c9df6b6ad80b2d5da8f9e987111fb719c176d5da974e9e89803d63545a": {
-      "displayName": "CardHiveVpcStack Template",
+    "b06c44191e1e530973a5e2edb2dc585a0c64c9156a6a54a2838c6df35742567c": {
+      "displayName": "CardHiveVPCStack Template",
       "source": {
-        "path": "CardHiveVpcStack.template.json",
+        "path": "CardHiveVPCStack.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "765430960003-us-east-1-5cfb6644": {
+        "765430960003-us-east-1-cecd1153": {
           "bucketName": "cdk-hnb659fds-assets-765430960003-us-east-1",
-          "objectKey": "d5c483c9df6b6ad80b2d5da8f9e987111fb719c176d5da974e9e89803d63545a.json",
+          "objectKey": "b06c44191e1e530973a5e2edb2dc585a0c64c9156a6a54a2838c6df35742567c.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-file-publishing-role-765430960003-us-east-1"
         }

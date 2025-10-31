@@ -1,0 +1,382 @@
+{
+ "Description": "CardHive RDS PostgreSQL",
+ "Resources": {
+  "CardHiveDbSecretD6F1B2B3": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "CardHive database credentials",
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "password",
+     "IncludeSpace": false,
+     "PasswordLength": 32,
+     "SecretStringTemplate": "{\"username\":\"cardhive\"}"
+    },
+    "Name": "card-hive-db-credentials",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHiveDbSecret/Resource"
+   }
+  },
+  "CardHiveDbSecretAttachmentAD54F63F": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "CardHiveDbSecretD6F1B2B3"
+    },
+    "TargetId": {
+     "Ref": "CardHivePostgresInstance0F2E6DA3"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHiveDbSecret/Attachment/Resource"
+   }
+  },
+  "CardHivePostgresInstanceSubnetGroup610E90DA": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for CardHivePostgresInstance database",
+    "SubnetIds": [
+     {
+      "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpcIsolatedSubnet1Subnet7BE151B1F6B2F0E4"
+     },
+     {
+      "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputRefCardHiveVpcIsolatedSubnet2SubnetE104EF4580838D8C"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHivePostgresInstance/SubnetGroup/Default"
+   }
+  },
+  "CardHivePostgresInstanceMonitoringRoleB9C3CAF6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "monitoring.rds.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHivePostgresInstance/MonitoringRole/Resource"
+   }
+  },
+  "CardHivePostgresInstance0F2E6DA3": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "BackupRetentionPeriod": 1,
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t4g.micro",
+    "DBInstanceIdentifier": "card-hive-db",
+    "DBName": "cardhive_dev",
+    "DBSubnetGroupName": {
+     "Ref": "CardHivePostgresInstanceSubnetGroup610E90DA"
+    },
+    "DeleteAutomatedBackups": true,
+    "DeletionProtection": false,
+    "EnablePerformanceInsights": true,
+    "Engine": "postgres",
+    "EngineVersion": "15.14",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "CardHiveDbSecretD6F1B2B3"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "CardHiveDbSecretD6F1B2B3"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MonitoringInterval": 60,
+    "MonitoringRoleArn": {
+     "Fn::GetAtt": [
+      "CardHivePostgresInstanceMonitoringRoleB9C3CAF6",
+      "Arn"
+     ]
+    },
+    "MultiAZ": false,
+    "PerformanceInsightsRetentionPeriod": 7,
+    "PreferredBackupWindow": "03:00-04:00",
+    "PreferredMaintenanceWindow": "sun:04:00-sun:05:00",
+    "PubliclyAccessible": false,
+    "StorageEncrypted": true,
+    "StorageType": "gp3",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "VPCSecurityGroups": [
+     {
+      "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHivePostgresInstance/Resource"
+   }
+  },
+  "CardHiveDbCpuAlarm70C604D7": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Database CPU utilization is too high",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Ref": "CardHivePostgresInstance0F2E6DA3"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "Threshold": 80
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHiveDbCpuAlarm/Resource"
+   }
+  },
+  "CardHiveDbStorageAlarm3C26DFAA": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Database free storage space is low",
+    "ComparisonOperator": "LessThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Ref": "CardHivePostgresInstance0F2E6DA3"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "FreeStorageSpace",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "Production"
+     },
+     {
+      "Key": "Project",
+      "Value": "CardHive"
+     }
+    ],
+    "Threshold": 2147483648
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CardHiveDbStorageAlarm/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2WLQY7CMAxFz8I+9ZTcgBkkxAqpZY/c1ECgSVDs0EWUu49aQEKw+t//PWvQegn1AkeuTH+tBttBbgXNVeHIh8xkIgk79HiiCLmdb/V39M/2iD3GE8lKBM3ZkX8TPklRsWfIaxTskGnrWdAbUm3qPMkmhnSbnte/X8NLLcqig9yEgSYwZVFmCKkfUcwZ8mrA6CY0l1JUQxxSNLO+S3JLUpQPPcGFf+5ag66hXlzY2iomL9YRNI/8B8WVJ3YeAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "CardHiveRDSStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DbEndpoint": {
+   "Description": "Database endpoint",
+   "Value": {
+    "Fn::GetAtt": [
+     "CardHivePostgresInstance0F2E6DA3",
+     "Endpoint.Address"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveDbEndpoint"
+   }
+  },
+  "DbPort": {
+   "Description": "Database port",
+   "Value": {
+    "Fn::GetAtt": [
+     "CardHivePostgresInstance0F2E6DA3",
+     "Endpoint.Port"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveDbPort"
+   }
+  },
+  "DbSecretArn": {
+   "Description": "Database credentials secret ARN",
+   "Value": {
+    "Ref": "CardHiveDbSecretD6F1B2B3"
+   },
+   "Export": {
+    "Name": "CardHiveDbSecretArn"
+   }
+  },
+  "DbSecurityGroupID": {
+   "Description": "Database security group ID",
+   "Value": {
+    "Fn::ImportValue": "CardHiveVPCStack:ExportsOutputFnGetAttDatabaseSecurityGroup7319C0F6GroupId72A1B827"
+   },
+   "Export": {
+    "Name": "CardHiveDbSecurityGroupID"
+   }
+  },
+  "ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointAddressB4AB4488": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CardHivePostgresInstance0F2E6DA3",
+     "Endpoint.Address"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveRDSStack:ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointAddressB4AB4488"
+   }
+  },
+  "ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointPort4E530206": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CardHivePostgresInstance0F2E6DA3",
+     "Endpoint.Port"
+    ]
+   },
+   "Export": {
+    "Name": "CardHiveRDSStack:ExportsOutputFnGetAttCardHivePostgresInstance0F2E6DA3EndpointPort4E530206"
+   }
+  },
+  "ExportsOutputRefCardHiveDbSecretD6F1B2B30554D94F": {
+   "Value": {
+    "Ref": "CardHiveDbSecretD6F1B2B3"
+   },
+   "Export": {
+    "Name": "CardHiveRDSStack:ExportsOutputRefCardHiveDbSecretD6F1B2B30554D94F"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

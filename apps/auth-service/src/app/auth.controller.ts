@@ -5,6 +5,7 @@ import {
   UseGuards,
   Get,
   Req,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,6 +17,12 @@ import { AuthGuard } from './guards/auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get('health')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Application is healthy' })
+  async health() {
+    return { status: 'healthy' };
+  }
 
   @Post('register')
   @ApiOperation({ summary: 'Register new user' })

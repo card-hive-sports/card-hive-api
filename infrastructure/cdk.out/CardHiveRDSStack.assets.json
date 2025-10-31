@@ -1,16 +1,16 @@
 {
   "version": "48.0.0",
   "files": {
-    "a94106fbba37e363e795f69149dce3d92e58c17b7f7fd06374237858c569f3d9": {
-      "displayName": "CardHiveECSStack Template",
+    "57fd1d3840acd610c492caaeb0118de3026ccfdcb8f1d4767e57a7290bcb0d37": {
+      "displayName": "CardHiveRDSStack Template",
       "source": {
-        "path": "CardHiveECSStack.template.json",
+        "path": "CardHiveRDSStack.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "765430960003-us-east-1-ced64421": {
+        "765430960003-us-east-1-1f4d3cb8": {
           "bucketName": "cdk-hnb659fds-assets-765430960003-us-east-1",
-          "objectKey": "a94106fbba37e363e795f69149dce3d92e58c17b7f7fd06374237858c569f3d9.json",
+          "objectKey": "57fd1d3840acd610c492caaeb0118de3026ccfdcb8f1d4767e57a7290bcb0d37.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-file-publishing-role-765430960003-us-east-1"
         }
