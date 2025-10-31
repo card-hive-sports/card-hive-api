@@ -29,7 +29,7 @@ WORKDIR /app
 
 COPY --from=builder /app/apps/auth-service/dist/package.json /app/apps/auth-service/dist/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/auth-service/dist ./dist
-COPY --from=builder /app/libs/shared/database/prisma/schema.prisma ./schema.prisma
+COPY --from=builder /app/libs/shared/database/prisma ./
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
