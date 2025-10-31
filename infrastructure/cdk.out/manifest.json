@@ -565,7 +565,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-deploy-role-765430960003-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::765430960003:role/cdk-hnb659fds-cfn-exec-role-765430960003-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/a94106fbba37e363e795f69149dce3d92e58c17b7f7fd06374237858c569f3d9.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-765430960003-us-east-1/ba21052a4c0a1142d15465d318e599399b8ca8373df2988fe61473f32ed49d3a.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -602,12 +602,6 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "CardHiveAuthClusterB9CE2888"
-          }
-        ],
-        "/CardHiveECSStack/CardHiveAuthServiceRepo/Resource": [
-          {
-            "type": "aws:cdk:logicalId",
-            "data": "CardHiveAuthServiceRepo2B1F229E"
           }
         ],
         "/CardHiveECSStack/CardHiveAppSecret/Resource": [

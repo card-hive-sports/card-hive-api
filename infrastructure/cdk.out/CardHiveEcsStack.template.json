@@ -26,33 +26,6 @@
     "aws:cdk:path": "CardHiveECSStack/CardHiveAuthCluster/Resource"
    }
   },
-  "CardHiveAuthServiceRepo2B1F229E": {
-   "Type": "AWS::ECR::Repository",
-   "Properties": {
-    "ImageScanningConfiguration": {
-     "ScanOnPush": true
-    },
-    "LifecyclePolicy": {
-     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"description\":\"Keep last 10 images\",\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
-    },
-    "RepositoryName": "card-hive/auth-service",
-    "Tags": [
-     {
-      "Key": "Environment",
-      "Value": "Production"
-     },
-     {
-      "Key": "Project",
-      "Value": "CardHive"
-     }
-    ]
-   },
-   "UpdateReplacePolicy": "Retain",
-   "DeletionPolicy": "Retain",
-   "Metadata": {
-    "aws:cdk:path": "CardHiveECSStack/CardHiveAuthServiceRepo/Resource"
-   }
-  },
   "CardHiveAppSecret63B8AC2F": {
    "Type": "AWS::SecretsManager::Secret",
    "Properties": {
@@ -191,48 +164,11 @@
        "Fn::Join": [
         "",
         [
-         {
-          "Fn::Select": [
-           4,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "CardHiveAuthServiceRepo2B1F229E",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
-         },
-         ".dkr.ecr.",
-         {
-          "Fn::Select": [
-           3,
-           {
-            "Fn::Split": [
-             ":",
-             {
-              "Fn::GetAtt": [
-               "CardHiveAuthServiceRepo2B1F229E",
-               "Arn"
-              ]
-             }
-            ]
-           }
-          ]
-         },
-         ".",
+         "765430960003.dkr.ecr.us-east-1.",
          {
           "Ref": "AWS::URLSuffix"
          },
-         "/",
-         {
-          "Ref": "CardHiveAuthServiceRepo2B1F229E"
-         },
-         ":latest"
+         "/card-hive/auth-service:latest"
         ]
        ]
       },
@@ -403,12 +339,7 @@
         "ecr:GetDownloadUrlForLayer"
        ],
        "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "CardHiveAuthServiceRepo2B1F229E",
-         "Arn"
-        ]
-       }
+       "Resource": "arn:aws:ecr:us-east-1:765430960003:repository/card-hive/auth-service"
       },
       {
        "Action": "ecr:GetAuthorizationToken",
@@ -746,7 +677,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11R0W7DIAz8lr5T1uUPtk7bS6VNSd8nl7jIDYEIQ6sJ8e9TQrOke/Ld+ewzopJV9Sx3G7jxVrXd1tBJpiaA6gTc+DuhYpn2JnJAL/ZnO8N38BoCHoG7NzyTpUDOjob/irMByKJfaffZBv2VFI5DM2wUGDiZae3eRRuyQOVlqnFwTMH5n9G9sCwYlcfAPVjQ6GVqJl52jigLgl6m2pkpaKpfzpCaNhWUhXGaZTo4/eFdHMbOjLOAYTCkYLwcYnCswJDVMi23en1PfFRKOXpQHVndlLkl+0HIAg1wIGUctCcwYBVZfa1kelniDw7a16lX/uKBr33EAe3dM+NVvxz299QVzVnUyC768i2fMQwxZGFdi/LCT9eqktVO7jYXJtr6aAP1KOtSfwFR1O0jSgIAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11RwW7CMAz9Fu4hY/2DwbRdkDa13CeTmsg0Tao4AaEo/z61oaPs5Pee7Wc7qWRVvcrNCq68Vm23NnSUqQmgOgFX/kmoWKadiRzQi93JzvADvIaAB+DuHU9kKZCzY8F/xdkAZNEvtHtvg/5CCsemGTYKDBzNZLtz0YYsUHlZ4+CYgvO3LTAKRuUxcA8WNHqZmokXnxFlQdDLVDszmU/x2xlSt5EWlIVxmmXaO/3pXRzGzIyzgGEwpGDcFmJwrMCQ1TI99vP6PvFZKeHgQXVkdVP6HrOfhCzQAAdSxkF7BANWkdWXSqa3x/i9g3Y75cr7P/FlHXFAe6+Z8SJfFvs7dUFzFjWyi758xVcMQwxZWNeiPPPLpapktZGb1ZmJ1j7aQD3KusRfQ248Nj4CAAA="
    },
    "Metadata": {
     "aws:cdk:path": "CardHiveECSStack/CDKMetadata/Default"
@@ -772,47 +703,11 @@
     "Fn::Join": [
      "",
      [
-      {
-       "Fn::Select": [
-        4,
-        {
-         "Fn::Split": [
-          ":",
-          {
-           "Fn::GetAtt": [
-            "CardHiveAuthServiceRepo2B1F229E",
-            "Arn"
-           ]
-          }
-         ]
-        }
-       ]
-      },
-      ".dkr.ecr.",
-      {
-       "Fn::Select": [
-        3,
-        {
-         "Fn::Split": [
-          ":",
-          {
-           "Fn::GetAtt": [
-            "CardHiveAuthServiceRepo2B1F229E",
-            "Arn"
-           ]
-          }
-         ]
-        }
-       ]
-      },
-      ".",
+      "765430960003.dkr.ecr.us-east-1.",
       {
        "Ref": "AWS::URLSuffix"
       },
-      "/",
-      {
-       "Ref": "CardHiveAuthServiceRepo2B1F229E"
-      }
+      "/card-hive/auth-service"
      ]
     ]
    },

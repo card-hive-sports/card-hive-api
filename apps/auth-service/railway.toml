@@ -1,0 +1,14 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "apps/auth-service/Dockerfile"
+watchPatterns = [
+  "apps/auth-service/**",
+  "libs/shared/**",
+  "nx.json",
+  "package.json",
+  "tsconfig*.json"
+]
+
+[deploy]
+healthcheckPath = "/api/health"
+restartPolicyType = "never"

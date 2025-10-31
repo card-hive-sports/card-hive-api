@@ -34,17 +34,11 @@ export class EcsStack extends cdk.Stack {
     });
 
     // ECR Repository for auth service
-    const ecrRepo = new ecr.Repository(this, `${props.appName}AuthServiceRepo`, {
-      repositoryName: `card-hive/auth-service`,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      imageScanOnPush: true,
-      lifecycleRules: [
-        {
-          maxImageCount: 10,
-          description: 'Keep last 10 images',
-        },
-      ],
-    });
+    const ecrRepo = ecr.Repository.fromRepositoryName(
+      this,
+      `${props.appName}AuthServiceRepo`,
+      'card-hive/auth-service'
+    );
 
     // Application secrets (JWT_SECRET, etc)
     const appSecret = new secretsmanager.Secret(this, `${props.appName}AppSecret`, {
