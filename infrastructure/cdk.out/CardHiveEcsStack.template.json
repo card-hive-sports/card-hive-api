@@ -150,16 +150,6 @@
        }
       ],
       "Essential": true,
-      "HealthCheck": {
-       "Command": [
-        "CMD-SHELL",
-        "curl -f http://localhost:3000/api/auth/health || exit 1"
-       ],
-       "Interval": 30,
-       "Retries": 3,
-       "StartPeriod": 60,
-       "Timeout": 5
-      },
       "Image": {
        "Fn::Join": [
         "",
@@ -638,7 +628,7 @@
    "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
    "Properties": {
     "HealthCheckIntervalSeconds": 30,
-    "HealthCheckPath": "/api",
+    "HealthCheckPath": "/api/auth/health",
     "HealthCheckTimeoutSeconds": 5,
     "HealthyThresholdCount": 2,
     "Name": "card-hive-auth-tg",

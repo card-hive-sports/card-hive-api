@@ -92,13 +92,6 @@ export class EcsStack extends cdk.Stack {
         JWT_EXPIRES_IN: ecs.Secret.fromSecretsManager(appSecret, 'JWT_EXPIRES_IN'),
         REFRESH_TOKEN_EXPIRES_IN: ecs.Secret.fromSecretsManager(appSecret, 'REFRESH_TOKEN_EXPIRES_IN'),
       },
-      healthCheck: {
-        command: ['CMD-SHELL', 'curl -f http://localhost:3000/api/auth/health || exit 1'],
-        interval: cdk.Duration.seconds(30),
-        timeout: cdk.Duration.seconds(5),
-        retries: 3,
-        startPeriod: cdk.Duration.seconds(60),
-      },
     });
 
     container.addPortMappings({
@@ -143,7 +136,7 @@ export class EcsStack extends cdk.Stack {
       protocol: elbv2.ApplicationProtocol.HTTP,
       targetType: elbv2.TargetType.IP,
       healthCheck: {
-        path: '/api',
+        path: '/api/auth/health',
         interval: cdk.Duration.seconds(30),
         timeout: cdk.Duration.seconds(5),
         healthyThresholdCount: 2,
