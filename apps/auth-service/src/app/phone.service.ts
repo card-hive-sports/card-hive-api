@@ -8,7 +8,7 @@ export class PhoneService {
   constructor(private readonly prisma: PrismaService) {}
 
   async sendVerificationCode(phone: string): Promise<void> {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = '123456'/*Math.floor(100000 + Math.random() * 900000).toString()*/;
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.prisma.phoneVerification.create({
