@@ -1,16 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersRepository } from './repositories/users.repository';
 import { PhoneService } from './phone.service';
-import { User, UserRole, AuthProvider } from '@card-hive/shared-database';
-
-export interface JwtPayload {
-  sub: string;
-  email: string | null;
-  phone: string | null;
-  fullName: string;
-  role: UserRole;
-}
+import { User, AuthProvider } from '@card-hive/shared-database';
+import { JwtPayload } from '@card-hive/shared-types';
 
 @Injectable()
 export class AuthService {
@@ -73,14 +69,12 @@ export class AuthService {
     };
   }
 
-  async validateUser(userID: string): Promise<User> {
-    const user = await this.users.findByID(userID);
-
-    if (!user || !user.isActive) {
-      throw new UnauthorizedException('User not found or inactive');
+  async getUserProfile(id: string) {
+    const user = await this.users.findByID(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-
-    return user;
+    return this.sanitizeUser(user);
   }
 
   private generateAccessToken(user: User): string {

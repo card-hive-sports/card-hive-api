@@ -1,5 +1,5 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { PrismaService, User, UserRole, AuthProvider } from '@card-hive/shared-database';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { AuthProvider, PrismaService, User, UserRole } from '@card-hive/shared-database';
 
 @Injectable()
 export class UsersRepository {
@@ -70,8 +70,7 @@ export class UsersRepository {
       return existingLink.user;
     }
 
-    // Create new user
-    const user = await this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         fullName: userData.fullName,
         email: userData.email || null,
@@ -85,7 +84,5 @@ export class UsersRepository {
         },
       },
     });
-
-    return user;
   }
 }

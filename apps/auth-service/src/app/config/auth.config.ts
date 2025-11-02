@@ -26,10 +26,19 @@ export const authConfig = registerAs('auth', ()=> {
     database: {
       url: config.DATABASE_URL,
     },
+    redis: {
+      host: config.REDIS_HOST,
+      port: config.REDIS_PORT,
+    },
     jwt: {
       secret: config.JWT_SECRET,
       expiresIn: config.JWT_EXPIRES_IN,
       refreshTokenExpiresIn: config.REFRESH_TOKEN_EXPIRES_IN,
+    },
+    twilio: {
+      accountSID: config.TWILIO_ACCOUNT_SID,
+      authToken: config.TWILIO_AUTH_TOKEN,
+      verifyServiceSID: config.TWILIO_VERIFY_SERVICE_SID,
     }
   };
 });

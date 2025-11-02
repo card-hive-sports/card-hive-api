@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY tsconfig.base.json tsconfig.json nx.json eslint.config.mjs ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY libs/shared/database ./libs/shared/database
+COPY libs/shared ./libs/shared
 COPY apps/auth-service ./apps/auth-service
 
 RUN pnpm install --frozen-lockfile
@@ -27,7 +27,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /app/apps/auth-service/dist/package.json /app/apps/auth-service/dist/pnpm-lock.yaml ./
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/auth-service/dist ./dist
 COPY --from=builder /app/libs/shared/database/prisma ./
 

@@ -5,6 +5,12 @@ export class AuthConfigSchema {
   DATABASE_URL: string;
 
   @IsString()
+  REDIS_HOST: string;
+
+  @IsString()
+  REDIS_PORT: string;
+
+  @IsString()
   JWT_SECRET: string;
 
   @IsString()
@@ -12,4 +18,13 @@ export class AuthConfigSchema {
 
   @IsString()
   REFRESH_TOKEN_EXPIRES_IN: string;
+
+  @IsString()
+  TWILIO_ACCOUNT_SID: string;
+
+  @IsString()
+  TWILIO_AUTH_TOKEN: string;
+
+  @IsString()
+  TWILIO_VERIFY_SERVICE_SID: string;
 }
