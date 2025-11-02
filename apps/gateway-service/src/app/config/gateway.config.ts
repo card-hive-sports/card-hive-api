@@ -19,7 +19,7 @@ export const validateConfig = (config: Record<string, unknown>) => {
   return validatedConfig;
 }
 
-export const gatewayConfig = registerAs('auth', ()=> {
+export const gatewayConfig = registerAs('gateway', ()=> {
   const config = validateConfig(process.env);
 
   return {

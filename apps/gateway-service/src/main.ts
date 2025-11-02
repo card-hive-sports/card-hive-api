@@ -25,7 +25,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   app.use('/api/auth', createProxyMiddleware({
-    target: process.env.AUTH_SERVICE_URL,
+    target: authServiceUrl,
     changeOrigin: true,
   }));
 
