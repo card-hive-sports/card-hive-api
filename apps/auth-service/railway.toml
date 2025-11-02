@@ -1,7 +1,6 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
-buildCommand = "--build-arg SERVICE_NAME=auth-service"
 watchPatterns = [
   "apps/auth-service/**",
   "libs/shared/**",
@@ -11,5 +10,5 @@ watchPatterns = [
 ]
 
 [deploy]
-healthcheckPath = "/api/auth/health"
+healthcheckPath = ""
 restartPolicyType = "never"
