@@ -4,11 +4,11 @@
   "license": "MIT",
   "scripts": {
     "db:generate": "prisma generate --schema=libs/shared/database/prisma/schema.prisma",
-    "db:migrate": "prisma migrate dev --schema=libs/shared/database/prisma/schema.prisma"
+    "db:migrate": "prisma migrate dev --schema=libs/shared/database/prisma/schema.prisma",
+    "db:studio": "prisma studio --schema=libs/shared/database/prisma/schema.prisma"
   },
   "private": true,
   "dependencies": {
-    "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.0",
@@ -54,7 +54,6 @@
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "~0.2.38",
     "@types/bcrypt": "^6.0.0",
-    "@types/bull": "^4.10.4",
     "@types/jest": "^30.0.0",
     "@types/node": "20.19.9",
     "@types/passport-google-oauth20": "^2.0.16",

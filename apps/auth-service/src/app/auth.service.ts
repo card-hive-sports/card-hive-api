@@ -1,19 +1,24 @@
 import {
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersRepository } from './repositories/users.repository';
+import { RefreshTokensRepository, UsersRepository } from './repositories';
 import { PhoneService } from './phone.service';
 import { User, AuthProvider } from '@card-hive/shared-database';
 import { JwtPayload } from '@card-hive/shared-types';
+import { randomBytes } from 'node:crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private users: UsersRepository,
-    private phone: PhoneService,
-    private jwt: JwtService,
+    private readonly users: UsersRepository,
+    private readonly refreshTokens: RefreshTokensRepository,
+    private readonly phone: PhoneService,
+    private readonly jwt: JwtService,
+    private readonly config: ConfigService,
   ) {}
 
   async register(
@@ -21,20 +26,15 @@ export class AuthService {
     email: string,
     phone: string,
     dateOfBirth: string
-  ): Promise<{ accessToken: string; user: Partial<User> }> {
-    const user = await this.users.create(
+  ) {
+    await this.users.create(
       fullName,
       email,
       phone,
       new Date(dateOfBirth)
     );
 
-    const accessToken = this.generateAccessToken(user);
-
-    return {
-      accessToken,
-      user: this.sanitizeUser(user),
-    };
+    return this.phoneLoginRequest(phone);
   }
 
   async phoneLoginRequest(phone: string): Promise<{ message: string }> {
@@ -45,7 +45,7 @@ export class AuthService {
   async phoneLoginVerify(
     phone: string,
     code: string
-  ): Promise<{ accessToken: string; user: Partial<User> }> {
+  ): Promise<{ accessToken: string; refreshToken: string; user: Partial<User> }> {
     await this.phone.verifyCode(phone, code);
 
     let user = await this.users.findByPhone(phone);
@@ -62,9 +62,11 @@ export class AuthService {
     }
 
     const accessToken = this.generateAccessToken(user);
+    const refreshToken = await this.generateRefreshToken(user.id);
 
     return {
       accessToken,
+      refreshToken,
       user: this.sanitizeUser(user),
     };
   }
@@ -75,6 +77,55 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
     return this.sanitizeUser(user);
+  }
+
+  async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    const tokenRecord = await this.refreshTokens.findByToken(refreshToken);
+
+    if (!tokenRecord) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (tokenRecord.expiresAt < new Date()) {
+      await this.refreshTokens.deleteByToken(refreshToken);
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    await this.refreshTokens.deleteByToken(refreshToken);
+
+    const accessToken = this.generateAccessToken(tokenRecord.user);
+    const newRefreshToken = await this.generateRefreshToken(tokenRecord.user.id);
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  async logout(refreshToken: string): Promise<{ message: string }> {
+    try {
+      await this.refreshTokens.deleteByToken(refreshToken);
+    } catch (error) {
+      // Token might not exist, that's fine
+    }
+
+    return { message: 'Logged out successfully' };
+  }
+
+  async logoutAll(userID: string): Promise<{ message: string }> {
+    await this.refreshTokens.deleteAllByUserID(userID);
+    return { message: 'Logged out from all devices' };
+  }
+
+  private async generateRefreshToken(userID: string): Promise<string> {
+    const token = randomBytes(64).toString('hex');
+    const expiresAt = new Date();
+    const expiresIn = Number(this.config.get('auth.jwt.refreshTokenExpiresIn', '7'));
+    expiresAt.setDate(expiresAt.getDate() + expiresIn);
+
+    await this.refreshTokens.create(userID, token, expiresAt);
+
+    return token;
   }
 
   private generateAccessToken(user: User): string {
@@ -95,7 +146,6 @@ export class AuthService {
       fullName: user.fullName,
       email: user.email,
       phone: user.phone,
-      dateOfBirth: user.dateOfBirth,
       role: user.role,
       kycStatus: user.kycStatus,
       createdAt: user.createdAt,

@@ -38,6 +38,7 @@ model User {
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   authProviders AuthProviderLink[]
+  refreshToken  RefreshToken[]
 
   @@map("users")
 }
@@ -55,14 +56,16 @@ model AuthProviderLink {
   @@map("auth_provider_links")
 }
 
-model PhoneVerification {
+model RefreshToken {
   id        String   @id @default(uuid())
-  phone     String
-  code      String
+  userID    String   @map("user_id")
+  token     String   @unique
   expiresAt DateTime @map("expires_at")
-  verified  Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@index([phone, code])
-  @@map("phone_verifications")
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  @@index([userID])
+  @@index([token])
+  @@map("refresh_tokens")
 }

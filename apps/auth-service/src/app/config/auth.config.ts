@@ -26,10 +26,6 @@ export const authConfig = registerAs('auth', ()=> {
     database: {
       url: config.DATABASE_URL,
     },
-    redis: {
-      host: config.REDIS_HOST,
-      port: config.REDIS_PORT,
-    },
     jwt: {
       secret: config.JWT_SECRET,
       expiresIn: config.JWT_EXPIRES_IN,

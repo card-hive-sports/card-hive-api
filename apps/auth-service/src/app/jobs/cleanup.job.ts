@@ -1,23 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '@card-hive/shared-database';
+import { RefreshTokensRepository } from '../repositories';
 
 @Injectable()
 export class CleanupJob {
   private readonly logger = new Logger(CleanupJob.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly refreshTokens: RefreshTokensRepository) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
-  async deleteExpiredVerificationCodes() {
-    const deleted = await this.prisma.phoneVerification.deleteMany({
-      where: {
-        expiresAt: { lt: new Date() },
-      },
-    });
-
-    if (deleted.count > 0) {
-      this.logger.log(`🗑️ Deleted ${deleted.count} expired verification codes`);
-    }
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  async cleanupExpiredTokens() {
+    const result = await this.refreshTokens.deleteExpired();
+    this.logger.log(`Cleaned up ${result.count} expired refresh tokens`);
   }
 }

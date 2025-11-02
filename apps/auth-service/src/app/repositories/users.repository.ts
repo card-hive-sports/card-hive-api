@@ -75,7 +75,7 @@ export class UsersRepository {
         fullName: userData.fullName,
         email: userData.email || null,
         phone: userData.phone || null,
-        dateOfBirth: userData.dateOfBirth || new Date('2000-01-01'), // Default if not provided
+        dateOfBirth: userData.dateOfBirth || new Date('2000-01-01'),
         authProviders: {
           create: {
             provider,
