@@ -3,30 +3,29 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { GatewayModule } from './app/gateway.module';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);
 
-  const config = new DocumentBuilder()
+  const config = app.get(ConfigService);
+
+  const authServiceUrl = config.get('gateway.services.auth');
+
+  const swaggerDoc = new DocumentBuilder()
     .setTitle('CardHive API Gateway')
     .setDescription(`
       Available Services:
-      - Auth Service: ${process.env.AUTH_SERVICE_URL}/api/docs
-      - Users Service: ${process.env.USERS_SERVICE_URL}/api/docs
+      - Auth Service: ${authServiceUrl}/api/docs
     `)
     .setVersion('1.0')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerDoc);
   SwaggerModule.setup('api/docs', app, document);
 
   app.use('/api/auth', createProxyMiddleware({
     target: process.env.AUTH_SERVICE_URL,
-    changeOrigin: true,
-  }));
-
-  app.use('/api/users', createProxyMiddleware({
-    target: process.env.USERS_SERVICE_URL,
     changeOrigin: true,
   }));
 
