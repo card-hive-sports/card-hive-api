@@ -9,5 +9,5 @@ watchPatterns = [
 ]
 
 [deploy]
-healthcheckPath = "/api/health"
+healthcheckPath = ""
 restartPolicyType = "never"
