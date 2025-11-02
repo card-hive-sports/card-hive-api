@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Matches } from 'class-validator';
+import { IsOptional, IsString, Matches } from 'class-validator';
 import {
   PhoneLoginRequest,
   PhoneLoginVerifyRequest,
@@ -22,4 +22,9 @@ export class PhoneLoginVerifyDto implements PhoneLoginVerifyRequest {
   @IsString()
   @Matches(/^\d{6}$/)
   code: string;
+
+  @ApiProperty({ example: 'b233893893ha3989::uuid' })
+  @IsOptional()
+  @IsString()
+  sessionID?: string;
 }

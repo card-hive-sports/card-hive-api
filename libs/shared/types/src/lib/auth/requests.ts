@@ -12,6 +12,7 @@ export interface PhoneLoginRequest {
 export interface PhoneLoginVerifyRequest {
   phone: string;
   code: string;
+  sessionID?: string;
 }
 
 export interface RefreshTokenRequest {

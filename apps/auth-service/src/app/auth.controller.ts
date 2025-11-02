@@ -52,7 +52,7 @@ export class AuthController {
   @Post('login/phone/verify')
   @ApiOperation({ summary: 'Verify phone code and login' })
   async phoneLoginVerify(@Body() dto: PhoneLoginVerifyDto) {
-    return this.auth.phoneLoginVerify(dto.phone, dto.code);
+    return this.auth.phoneLoginVerify(dto);
   }
 
   @Get('me')

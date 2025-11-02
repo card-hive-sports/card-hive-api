@@ -5,7 +5,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SharedDatabaseModule } from '@card-hive/shared-database';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { RefreshTokensRepository, UsersRepository } from './repositories';
+import {
+  RefreshTokensRepository,
+  UsersRepository,
+  LoginActivitiesRepository
+} from './repositories';
 import { PhoneService } from './phone.service';
 import { authConfig } from './config/auth.config';
 import { AuthGuard } from './guards/auth.guard';
@@ -36,6 +40,7 @@ import { CleanupJob } from './jobs/cleanup.job';
     AuthService,
     UsersRepository,
     RefreshTokensRepository,
+    LoginActivitiesRepository,
     PhoneService,
     AuthGuard,
     CleanupJob

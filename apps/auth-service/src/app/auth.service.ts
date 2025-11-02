@@ -4,15 +4,23 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshTokensRepository, UsersRepository } from './repositories';
+import {
+  LoginActivitiesRepository,
+  RefreshTokensRepository,
+  UsersRepository
+} from './repositories';
 import { PhoneService } from './phone.service';
 import { User, AuthProvider, UserRole } from '@card-hive/shared-database';
-import { JwtPayload, RegisterRequest } from '@card-hive/shared-types';
+import {
+  AuthVerificationResponse,
+  JwtPayload,
+  LoginResponse,
+  PhoneLoginVerifyRequest,
+  RegisterRequest,
+} from '@card-hive/shared-types';
 import { randomBytes } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
-
-import { LoginActivitiesRepository } from './repositories/login-activities.repository';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +47,7 @@ export class AuthService {
     return this.phoneLoginRequest(data.phone, req);
   }
 
-  async phoneLoginRequest(phone: string, req: Request): Promise<{ message: string }> {
+  async phoneLoginRequest(phone: string, req: Request): Promise<AuthVerificationResponse> {
     const user = await this.users.findByPhone(phone);
 
     if (!user) {
@@ -47,41 +55,49 @@ export class AuthService {
     }
 
     await this.phone.sendVerificationCode(phone);
+    let sessionID: string | undefined;
     try {
-      await this.loginActivities.recordLogin(user, AuthProvider.PHONE, req);
+      sessionID = await this.loginActivities.recordLogin(user, AuthProvider.PHONE, req);
     } catch (e) {
     //   Doesn't matter
     }
-    return { message: 'Verification code sent' };
+    return { message: 'Verification code sent', sessionID };
   }
 
-  async phoneLoginVerify(
-    phone: string,
-    code: string
-  ): Promise<{ accessToken: string; refreshToken: string; user: Partial<User> }> {
-    await this.phone.verifyCode(phone, code);
+  async phoneLoginVerify(data: PhoneLoginVerifyRequest): Promise<LoginResponse> {
+    const { phone, code, sessionID } = data;
 
-    let user = await this.users.findByPhone(phone);
+    try {
+      await this.phone.verifyCode(phone, code);
 
-    if (!user) {
-      user = await this.users.findOrCreateByProvider(
-        AuthProvider.PHONE,
-        phone,
-        {
-          fullName: 'User',
-          phone,
-        }
-      );
+      const user = await this.users.findByPhone(phone);
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid phone number');
+      }
+
+      console.log('User: ', user);
+
+      const accessToken = this.generateAccessToken(user);
+      const refreshToken = await this.generateRefreshToken(user.id);
+
+      if (sessionID) {
+        console.log('Session ID: ', sessionID);
+        await this.loginActivities.markSuccess(sessionID);
+      }
+
+      return {
+        accessToken,
+        refreshToken,
+        user: this.sanitizeUser(user),
+      };
+    } catch (error: any) {
+      const message = error.data?.message || error.message;
+      if (sessionID) {
+        await this.loginActivities.markFailure(sessionID, message);
+      }
+      throw error;
     }
-
-    const accessToken = this.generateAccessToken(user);
-    const refreshToken = await this.generateRefreshToken(user.id);
-
-    return {
-      accessToken,
-      refreshToken,
-      user: this.sanitizeUser(user),
-    };
   }
 
   async getUserProfile(id: string) {

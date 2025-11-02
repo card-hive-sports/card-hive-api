@@ -7,12 +7,12 @@ import type { Request } from 'express';
 export class LoginActivitiesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  recordLogin(user: User, loginMethod: AuthProvider, req: Request) {
+  async recordLogin(user: User, loginMethod: AuthProvider, req: Request) {
     console.log("IP Address: ", req.ip);
     const userAgent = req.headers['user-agent'];
     const deviceInfo = this.parseUserAgent(userAgent);
 
-    return this.prisma.loginActivity.create({
+    const activity = await this.prisma.loginActivity.create({
       data: {
         userID: user.id,
         ipAddress: (req.ip || req.headers['x-forwarded-for']) as string,
@@ -21,6 +21,22 @@ export class LoginActivitiesRepository {
         browser: deviceInfo.browser,
         loginMethod,
       }
+    });
+
+    return activity.id;
+  }
+
+  async markSuccess(id: string) {
+    return this.prisma.loginActivity.updateMany({
+      where: { id },
+      data: { success: true, failureReason: null }
+    });
+  }
+
+  async markFailure(id: string, reason: string) {
+    return this.prisma.loginActivity.updateMany({
+      where: { id },
+      data: { success: false, failureReason: reason }
     });
   }
 
