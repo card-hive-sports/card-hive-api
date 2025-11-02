@@ -39,6 +39,7 @@ services:
       - "3000:3000"
     env_file:
       - .env
+      - apps/auth-service/.env
     depends_on:
       postgres:
         condition: service_healthy

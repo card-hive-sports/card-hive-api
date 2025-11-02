@@ -5,12 +5,6 @@ export class AuthConfigSchema {
   DATABASE_URL: string;
 
   @IsString()
-  REDIS_HOST: string;
-
-  @IsString()
-  REDIS_PORT: string;
-
-  @IsString()
   JWT_SECRET: string;
 
   @IsString()
