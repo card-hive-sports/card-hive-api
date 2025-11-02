@@ -6,39 +6,52 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokensRepository, UsersRepository } from './repositories';
 import { PhoneService } from './phone.service';
-import { User, AuthProvider } from '@card-hive/shared-database';
-import { JwtPayload } from '@card-hive/shared-types';
+import { User, AuthProvider, UserRole } from '@card-hive/shared-database';
+import { JwtPayload, RegisterRequest } from '@card-hive/shared-types';
 import { randomBytes } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
+import type { Request } from 'express';
+
+import { LoginActivitiesRepository } from './repositories/login-activities.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly users: UsersRepository,
     private readonly refreshTokens: RefreshTokensRepository,
+    private readonly loginActivities: LoginActivitiesRepository,
     private readonly phone: PhoneService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
   ) {}
 
-  async register(
-    fullName: string,
-    email: string,
-    phone: string,
-    dateOfBirth: string
-  ) {
+  async register(data: RegisterRequest, req: Request) {
     await this.users.create(
-      fullName,
-      email,
-      phone,
-      new Date(dateOfBirth)
+      data.fullName,
+      data.email,
+      data.phone,
+      new Date(data.dateOfBirth),
+      UserRole.CUSTOMER,
+      AuthProvider.PHONE,
+      data.phone,
     );
 
-    return this.phoneLoginRequest(phone);
+    return this.phoneLoginRequest(data.phone, req);
   }
 
-  async phoneLoginRequest(phone: string): Promise<{ message: string }> {
+  async phoneLoginRequest(phone: string, req: Request): Promise<{ message: string }> {
+    const user = await this.users.findByPhone(phone);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid phone number');
+    }
+
     await this.phone.sendVerificationCode(phone);
+    try {
+      await this.loginActivities.recordLogin(user, AuthProvider.PHONE, req);
+    } catch (e) {
+    //   Doesn't matter
+    }
     return { message: 'Verification code sent' };
   }
 

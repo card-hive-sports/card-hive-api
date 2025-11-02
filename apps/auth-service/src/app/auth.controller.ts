@@ -5,8 +5,10 @@ import {
   UseGuards,
   Get,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import {
   RegisterDto,
@@ -34,19 +36,17 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Register new user' })
   @ApiResponse({ status: 201, description: 'User registered successfully' })
-  async register(@Body() registerDto: RegisterDto) {
-    return this.auth.register(
-      registerDto.fullName,
-      registerDto.email,
-      registerDto.phone,
-      registerDto.dateOfBirth,
-    );
+  async register(@Body() registerDto: RegisterDto, @Req() req: Request) {
+    return this.auth.register(registerDto, req);
   }
 
   @Post('login/phone/request')
   @ApiOperation({ summary: 'Request phone verification code' })
-  async phoneLoginRequest(@Body() dto: PhoneLoginRequestDto) {
-    return this.auth.phoneLoginRequest(dto.phone);
+  async phoneLoginRequest(
+    @Body() dto: PhoneLoginRequestDto,
+    @Req() req: Request,
+  ) {
+    return this.auth.phoneLoginRequest(dto.phone, req);
   }
 
   @Post('login/phone/verify')

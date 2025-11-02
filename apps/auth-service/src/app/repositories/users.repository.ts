@@ -10,7 +10,9 @@ export class UsersRepository {
     email: string | null,
     phone: string | null,
     dateOfBirth: Date,
-    role: UserRole = UserRole.CUSTOMER
+    role: UserRole = UserRole.CUSTOMER,
+    provider: AuthProvider,
+    providerID: string,
   ): Promise<User> {
     const existing = await this.prisma.user.findFirst({
       where: {
@@ -32,6 +34,12 @@ export class UsersRepository {
         phone,
         dateOfBirth,
         role,
+        authProviders: {
+          create: {
+            provider,
+            providerID,
+          }
+        }
       },
     });
   }

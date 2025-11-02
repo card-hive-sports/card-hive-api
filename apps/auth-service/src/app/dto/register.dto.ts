@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, IsDateString, Matches } from 'class-validator';
+import { RegisterRequest } from '@card-hive/shared-types';
 
-export class RegisterDto {
+export class RegisterDto implements RegisterRequest{
   @ApiProperty({ example: 'John Doe' })
   @IsString()
   fullName: string;
