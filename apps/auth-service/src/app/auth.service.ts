@@ -1,5 +1,5 @@
 import {
-  Injectable,
+  Injectable, Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -21,9 +21,12 @@ import {
 import { randomBytes } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
+import { GoogleService } from './google.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly users: UsersRepository,
     private readonly refreshTokens: RefreshTokensRepository,
@@ -31,6 +34,7 @@ export class AuthService {
     private readonly phone: PhoneService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly google: GoogleService,
   ) {}
 
   async register(data: RegisterRequest, req: Request) {
@@ -76,13 +80,10 @@ export class AuthService {
         throw new UnauthorizedException('Invalid phone number');
       }
 
-      console.log('User: ', user);
-
       const accessToken = this.generateAccessToken(user);
       const refreshToken = await this.generateRefreshToken(user.id);
 
       if (sessionID) {
-        console.log('Session ID: ', sessionID);
         await this.loginActivities.markSuccess(sessionID);
       }
 
@@ -98,6 +99,39 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  async googleLogin(idToken: string, req: Request) {
+    const googleUser = await this.google.verifyToken(idToken);
+
+    let user = await this.users.findByEmail(googleUser.email);
+
+    if (!user) {
+      user = await this.users.findOrCreateByProvider(
+        AuthProvider.GOOGLE,
+        googleUser.providerID,
+        {
+          fullName: googleUser.fullName,
+          email: googleUser.email,
+          dateOfBirth: new Date('2000-01-01'),
+        }
+      );
+    }
+
+    try {
+      await this.loginActivities.recordLogin(user, AuthProvider.GOOGLE, req);
+    } catch (e: any) {
+      this.logger.error("Failed to log activities", e.message);
+    }
+
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = await this.generateRefreshToken(user.id);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: this.sanitizeUser(user),
+    };
   }
 
   async getUserProfile(id: string) {
@@ -134,8 +168,8 @@ export class AuthService {
   async logout(refreshToken: string): Promise<{ message: string }> {
     try {
       await this.refreshTokens.deleteByToken(refreshToken);
-    } catch (error) {
-      // Token might not exist, that's fine
+    } catch (error: any) {
+      this.logger.error("Something went wrong: ", error.message);
     }
 
     return { message: 'Logged out successfully' };

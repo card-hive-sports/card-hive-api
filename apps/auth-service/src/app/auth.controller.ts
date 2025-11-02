@@ -15,6 +15,7 @@ import {
   PhoneLoginRequestDto,
   PhoneLoginVerifyDto,
   RefreshTokenDto,
+  GoogleIDTokenDto,
 } from './dto';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthorisedUser } from './decorators/authorised-user.decorator';
@@ -53,6 +54,12 @@ export class AuthController {
   @ApiOperation({ summary: 'Verify phone code and login' })
   async phoneLoginVerify(@Body() dto: PhoneLoginVerifyDto) {
     return this.auth.phoneLoginVerify(dto);
+  }
+
+  @Post('google')
+  @ApiOperation({ summary: 'Login with Google' })
+  async googleLogin(@Body() body: GoogleIDTokenDto, @Req() req: Request) {
+    return this.auth.googleLogin(body.idToken, req);
   }
 
   @Get('me')

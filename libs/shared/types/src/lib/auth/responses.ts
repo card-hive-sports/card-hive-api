@@ -10,3 +10,9 @@ export interface AuthVerificationResponse {
   message: string;
   sessionID?: string;
 }
+
+export interface GoogleVerificationResponse {
+  providerID: string;
+  email: string;
+  fullName: string;
+}

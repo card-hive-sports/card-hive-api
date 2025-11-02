@@ -18,3 +18,7 @@ export interface PhoneLoginVerifyRequest {
 export interface RefreshTokenRequest {
   refreshToken: string;
 }
+
+export interface GoogleIDTokenRequest {
+  idToken: string;
+}

@@ -14,6 +14,7 @@ import { PhoneService } from './phone.service';
 import { authConfig } from './config/auth.config';
 import { AuthGuard } from './guards/auth.guard';
 import { CleanupJob } from './jobs/cleanup.job';
+import { GoogleService } from './google.service';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CleanupJob } from './jobs/cleanup.job';
     RefreshTokensRepository,
     LoginActivitiesRepository,
     PhoneService,
+    GoogleService,
     AuthGuard,
     CleanupJob
   ],

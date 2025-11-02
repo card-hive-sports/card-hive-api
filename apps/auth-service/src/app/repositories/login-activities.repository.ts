@@ -7,8 +7,7 @@ import type { Request } from 'express';
 export class LoginActivitiesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async recordLogin(user: User, loginMethod: AuthProvider, req: Request) {
-    console.log("IP Address: ", req.ip);
+  async recordLogin(user: User, loginMethod: AuthProvider, req: Request, markAsSuccessful = false) {
     const userAgent = req.headers['user-agent'];
     const deviceInfo = this.parseUserAgent(userAgent);
 
@@ -20,6 +19,7 @@ export class LoginActivitiesRepository {
         platform: deviceInfo.platform,
         browser: deviceInfo.browser,
         loginMethod,
+        success: markAsSuccessful,
       }
     });
 

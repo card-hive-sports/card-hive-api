@@ -21,4 +21,10 @@ export class AuthConfigSchema {
 
   @IsString()
   TWILIO_VERIFY_SERVICE_SID: string;
+
+  @IsString()
+  GOOGLE_CLIENT_ID: string;
+
+  @IsString()
+  GOOGLE_CLIENT_SECRET: string;
 }

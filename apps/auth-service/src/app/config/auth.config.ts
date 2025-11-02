@@ -35,6 +35,10 @@ export const authConfig = registerAs('auth', ()=> {
       accountSID: config.TWILIO_ACCOUNT_SID,
       authToken: config.TWILIO_AUTH_TOKEN,
       verifyServiceSID: config.TWILIO_VERIFY_SERVICE_SID,
-    }
+    },
+    google: {
+      clientID: config.GOOGLE_CLIENT_ID,
+      clientSecret: config.GOOGLE_CLIENT_SECRET,
+    },
   };
 });
