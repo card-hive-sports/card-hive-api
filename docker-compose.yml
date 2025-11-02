@@ -30,13 +30,30 @@ services:
       timeout: 3s
       retries: 5
 
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/gateway-service/Dockerfile
+    container_name: gateway
+    ports:
+      - "3000:3000"
+    env_file:
+      - apps/gateway-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   auth:
     build:
       context: .
-      dockerfile: apps/auth-service/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth-service
     container_name: auth
     ports:
-      - "3000:3000"
+      - "3001:3001"
     env_file:
       - .env
       - apps/auth-service/.env

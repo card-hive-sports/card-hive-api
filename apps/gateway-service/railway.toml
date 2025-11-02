@@ -1,0 +1,13 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "apps/gateway-service/Dockerfile"
+watchPatterns = [
+  "apps/gateway-service/**",
+  "nx.json",
+  "package.json",
+  "tsconfig*.json"
+]
+
+[deploy]
+healthcheckPath = "/api/gateway/health"
+restartPolicyType = "never"

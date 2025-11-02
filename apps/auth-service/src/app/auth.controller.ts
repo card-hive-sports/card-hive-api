@@ -25,7 +25,10 @@ export class AuthController {
   @Get('health')
   @ApiResponse({ status: HttpStatus.OK, description: 'Application is healthy' })
   async health() {
-    return { status: 'healthy' };
+    return {
+      status: HttpStatus.OK,
+      description: 'Application is healthy',
+    };
   }
 
   @Post('register')

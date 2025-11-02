@@ -1,6 +1,7 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "apps/auth-service/Dockerfile"
+dockerfilePath = "Dockerfile"
+buildCommand = "--build-arg SERVICE_NAME=auth-service"
 watchPatterns = [
   "apps/auth-service/**",
   "libs/shared/**",

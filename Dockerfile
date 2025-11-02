@@ -1,6 +1,7 @@
 FROM docker.io/node:lts-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
+ARG SERVICE_NAME
 ENV NX_DAEMON=false
 
 WORKDIR /app
@@ -8,33 +9,32 @@ WORKDIR /app
 COPY tsconfig.base.json tsconfig.json nx.json eslint.config.mjs ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY libs/shared ./libs/shared
-COPY apps/auth-service ./apps/auth-service
+COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm nx sync
 
 RUN npx prisma generate --schema=./libs/shared/database/prisma/schema.prisma
 
-RUN pnpm nx build auth-service
-RUN pnpm nx prune auth-service
+RUN pnpm nx build ${SERVICE_NAME}
 
 FROM docker.io/node:lts-alpine AS runner
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-ENV HOST=0.0.0.0
-ENV PORT=3000
+ARG SERVICE_NAME
 ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
-COPY --from=builder /app/apps/auth-service/dist ./dist
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/apps/${SERVICE_NAME}/dist/package.json ./
+COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
+COPY --from=builder /app/libs/shared ./libs/shared
 COPY --from=builder /app/libs/shared/database/prisma ./
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN pnpm install --prod --frozen-lockfile
-RUN npx prisma generate --schema=./schema.prisma
+RUN pnpm install
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

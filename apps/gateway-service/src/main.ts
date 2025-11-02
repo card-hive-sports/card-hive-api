@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { AppModule } from './app/app.module';
+import { GatewayModule } from './app/gateway.module';
 import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(GatewayModule);
 
   const config = new DocumentBuilder()
     .setTitle('CardHive API Gateway')
