@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);
+  app.setGlobalPrefix('api');
 
   const config = app.get(ConfigService);
 
