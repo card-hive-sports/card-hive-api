@@ -18,7 +18,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const config = app.get(ConfigService);
-  const environment = config.get('node.environment', 'development');
+  const environment = config.get('auth.node.environment');
   const services = config.get<Record<string, string>>('gateway.services', {});
 
   const allowedOrigins = Object.values(services).map((url) => {
