@@ -6,4 +6,7 @@ export class GatewayConfigSchema {
 
   @IsString()
   GATEWAY_SERVICES_AUTH: string;
+
+  @IsString()
+  GATEWAY_SERVICES_AUTH_EXTERNAL: string;
 }

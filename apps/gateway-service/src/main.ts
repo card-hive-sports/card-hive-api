@@ -5,34 +5,21 @@ import { GatewayModule } from './app/gateway.module';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-const getUrl = (url: string, env: string) => {
-  if (env === 'development') {
-    const port = url.split(':').pop();
-    return `http://localhost:${port}`;
-  }
-  return url;
-}
-
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);
   app.setGlobalPrefix('api');
 
   const config = app.get(ConfigService);
-  const environment = config.get('auth.node.environment');
-  const services = config.get<Record<string, string>>('gateway.services', {});
+  const services = config.get<Record<string, { internal: string; external: string; }>>('gateway.services', {});
 
-  const allowedOrigins = Object.values(services).map((url) => {
+  const allowedOrigins = Object.values(services).map(({ internal }) => {
     try {
-      const { origin } = new URL(url);
-
-      return getUrl(origin, environment);
+      const { origin } = new URL(internal);
+      return origin;
     } catch {
-      console.log("Not fully qualified");
-      return url;
+      return internal;
     }
   });
-
-  console.log("Allowed origins: ", allowedOrigins);
 
   app.enableCors({
     origin: allowedOrigins,
@@ -41,13 +28,11 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const authServiceUrl = services.auth;
-
   const swaggerDoc = new DocumentBuilder()
     .setTitle('CardHive API Gateway')
     .setDescription([
       '**Available Services:**',
-      `- 🔐 [Auth Service API Docs](${getUrl(authServiceUrl, environment)}/api/docs)`
+      `- 🔐 [Auth Service API Docs](${services.auth.external}/api/docs)`
     ].join('\n'))
     .setVersion('1.0')
     .build();
@@ -58,7 +43,7 @@ async function bootstrap() {
   app.use(
     '/api/auth',
     createProxyMiddleware({
-      target: `${authServiceUrl}/api/auth`,
+      target: `${services.auth.internal}/api/auth`,
       changeOrigin: true,
     }),
   );

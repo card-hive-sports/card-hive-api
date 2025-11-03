@@ -27,7 +27,10 @@ export const gatewayConfig = registerAs('gateway', ()=> {
       environment: config.NODE_ENV,
     },
     services: {
-      auth: config.GATEWAY_SERVICES_AUTH,
+      auth: {
+        internal: config.GATEWAY_SERVICES_AUTH,
+        external: config.GATEWAY_SERVICES_AUTH_EXTERNAL,
+      },
     },
   };
 });
