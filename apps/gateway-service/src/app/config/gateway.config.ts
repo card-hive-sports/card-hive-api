@@ -23,6 +23,9 @@ export const gatewayConfig = registerAs('gateway', ()=> {
   const config = validateConfig(process.env);
 
   return {
+    node: {
+      environment: config.NODE_ENV,
+    },
     services: {
       auth: config.GATEWAY_SERVICES_AUTH,
     },

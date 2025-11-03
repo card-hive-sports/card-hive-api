@@ -27,4 +27,7 @@ export class AuthConfigSchema {
 
   @IsString()
   GOOGLE_CLIENT_SECRET: string;
+
+  @IsString()
+  GATEWAY_SERVICE_URL: string;
 }

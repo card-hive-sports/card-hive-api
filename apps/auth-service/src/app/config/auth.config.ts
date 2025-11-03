@@ -40,5 +40,8 @@ export const authConfig = registerAs('auth', ()=> {
       clientID: config.GOOGLE_CLIENT_ID,
       clientSecret: config.GOOGLE_CLIENT_SECRET,
     },
+    services: {
+      gateway: config.GATEWAY_SERVICE_URL,
+    }
   };
 });
