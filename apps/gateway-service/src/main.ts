@@ -25,12 +25,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerDoc);
   SwaggerModule.setup('api/docs', app, document);
 
-  console.log("Auth service: ", authServiceUrl);
-
   app.use(
     '/api/auth',
     createProxyMiddleware({
-      target: authServiceUrl,
+      target: `${authServiceUrl}/api/auth`,
       changeOrigin: true,
     })
   );
