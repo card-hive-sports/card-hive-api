@@ -32,5 +32,8 @@ export const gatewayConfig = registerAs('gateway', ()=> {
         external: config.GATEWAY_SERVICES_AUTH_EXTERNAL,
       },
     },
+    cors: {
+      origins: config.CORS_ORIGINS,
+    }
   };
 });

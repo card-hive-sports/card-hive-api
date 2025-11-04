@@ -1,4 +1,5 @@
 import { IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class GatewayConfigSchema {
   @IsString()
@@ -9,4 +10,8 @@ export class GatewayConfigSchema {
 
   @IsString()
   GATEWAY_SERVICES_AUTH_EXTERNAL: string;
+
+  @Transform(v => v.value.split(','))
+  @IsString({ each: true })
+  CORS_ORIGINS: string[];
 }

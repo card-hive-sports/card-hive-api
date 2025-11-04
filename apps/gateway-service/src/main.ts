@@ -16,6 +16,9 @@ const proxyMiddleware = (target: string) => {
     if (req.headers['x-client-type']) {
       proxyReq.setHeader('x-client-type', req.headers['x-client-type']);
     }
+    if (req.headers['authorization']) {
+      proxyReq.setHeader('authorization', req.headers['authorization']);
+    }
   }
 
   const onProxyRes = (proxyRes: IncomingMessage, _: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
@@ -54,12 +57,19 @@ async function bootstrap() {
     }
   });
 
+  const corsOrigins: string[] = config.get('gateway.cors.origins', []);
+
+  console.log("Cors Origins", corsOrigins);
   console.log("Allowed Origins", allowedOrigins);
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: [...allowedOrigins, ...corsOrigins],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Client-Type'
+    ],
     credentials: true,
   });
 

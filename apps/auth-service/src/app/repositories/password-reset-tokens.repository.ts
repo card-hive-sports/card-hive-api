@@ -24,4 +24,10 @@ export class PasswordResetTokensRepository {
       data: { used: true },
     });
   }
+
+  async deleteExpired() {
+    return this.prisma.passwordResetToken.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
+  }
 }
