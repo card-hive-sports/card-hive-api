@@ -23,6 +23,9 @@ export const authConfig = registerAs('auth', ()=> {
   const config = validateConfig(process.env);
 
   return {
+    node: {
+      environment: config.NODE_ENV,
+    },
     database: {
       url: config.DATABASE_URL,
     },

@@ -7,10 +7,11 @@ WORKDIR /app
 
 COPY tsconfig.base.json tsconfig.json nx.json eslint.config.mjs ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-#COPY libs/shared ./libs/shared
-COPY apps/gateway-service ./apps/gateway-service
 
 RUN pnpm install --frozen-lockfile
+
+COPY apps/gateway-service ./apps/gateway-service
+
 RUN pnpm nx sync
 
 RUN pnpm nx build gateway-service
@@ -18,9 +19,6 @@ RUN pnpm nx build gateway-service
 FROM docker.io/node:lts-alpine AS runner
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-ARG SERVICE_NAME
-ENV HOST=0.0.0.0
-ENV PORT=3000
 ENV NODE_ENV=production
 
 WORKDIR /app

@@ -1,13 +1,46 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 import { GatewayModule } from './app/gateway.module';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientRequest, IncomingMessage, ServerResponse } from 'node:http';
+import cookieParser from 'cookie-parser';
+
+
+const proxyMiddleware = (target: string) => {
+  const onProxyReq = (proxyReq: ClientRequest, req: IncomingMessage) => {
+    if (req.headers.cookie) {
+      proxyReq.setHeader('cookie', req.headers.cookie);
+    }
+    if (req.headers['x-client-type']) {
+      proxyReq.setHeader('x-client-type', req.headers['x-client-type']);
+    }
+  }
+
+  const onProxyRes = (proxyRes: IncomingMessage, _: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+    if (proxyRes.headers['set-cookie']) {
+      res.setHeader('set-cookie', proxyRes.headers['set-cookie']);
+    }
+  }
+
+  const options: Options = {
+    target,
+    changeOrigin: true,
+    on: {
+      proxyReq: onProxyReq,
+      proxyRes: onProxyRes,
+    },
+  };
+
+  return createProxyMiddleware(options);
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule);
   app.setGlobalPrefix('api');
+
+  app.use(cookieParser());
 
   const config = app.get(ConfigService);
   const services = config.get<Record<string, { internal: string; external: string; }>>('gateway.services', {});
@@ -40,13 +73,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerDoc);
   SwaggerModule.setup('api/docs', app, document);
 
-  app.use(
-    '/api/auth',
-    createProxyMiddleware({
-      target: `${services.auth.internal}/api/auth`,
-      changeOrigin: true,
-    }),
-  );
+  app.use('/api/auth', proxyMiddleware(`${services.auth.internal}/api/auth`));
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

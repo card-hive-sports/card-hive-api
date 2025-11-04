@@ -1,8 +1,9 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AuthModule } from './app/auth.module';
 import { ConfigService } from '@nestjs/config';
+import cookieParser from 'cookie-parser';
+import { AuthModule } from './app/auth.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
@@ -12,6 +13,8 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
   app.setGlobalPrefix('api');
+
+  app.use(cookieParser());
 
   const config = app.get(ConfigService);
   const gatewayServiceUrl = config.get('auth.services.gateway');

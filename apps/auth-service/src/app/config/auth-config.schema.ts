@@ -2,6 +2,9 @@ import { IsString } from 'class-validator';
 
 export class AuthConfigSchema {
   @IsString()
+  NODE_ENV: string;
+
+  @IsString()
   DATABASE_URL: string;
 
   @IsString()
