@@ -8,7 +8,8 @@ import { AuthService } from './auth.service';
 import {
   RefreshTokensRepository,
   UsersRepository,
-  LoginActivitiesRepository
+  LoginActivitiesRepository,
+  PasswordResetTokensRepository,
 } from './repositories';
 import { PhoneService } from './phone.service';
 import { authConfig } from './config/auth.config';
@@ -42,6 +43,7 @@ import { GoogleService } from './google.service';
     UsersRepository,
     RefreshTokensRepository,
     LoginActivitiesRepository,
+    PasswordResetTokensRepository,
     PhoneService,
     GoogleService,
     AuthGuard,

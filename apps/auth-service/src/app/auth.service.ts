@@ -6,8 +6,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import {
   LoginActivitiesRepository,
+  PasswordResetTokensRepository,
   RefreshTokensRepository,
-  UsersRepository
+  UsersRepository,
 } from './repositories';
 import { PhoneService } from './phone.service';
 import { User, AuthProvider, UserRole } from '@card-hive/shared-database';
@@ -21,6 +22,7 @@ import {
 import { randomBytes } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
+import * as bcrypt from 'bcrypt';
 import { GoogleService } from './google.service';
 
 @Injectable()
@@ -31,6 +33,7 @@ export class AuthService {
     private readonly users: UsersRepository,
     private readonly refreshTokens: RefreshTokensRepository,
     private readonly loginActivities: LoginActivitiesRepository,
+    private readonly passwordResetTokens: PasswordResetTokensRepository,
     private readonly phone: PhoneService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
@@ -101,6 +104,35 @@ export class AuthService {
     }
   }
 
+  async emailLogin(email: string, password: string, req: Request): Promise<LoginResponse> {
+    const user = await this.users.findByEmail(email);
+
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    try {
+      await this.loginActivities.recordLogin(user, AuthProvider.EMAIL, req);
+    } catch (e: any) {
+      this.logger.error("Failed to log activities", e.message);
+    }
+
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = await this.generateRefreshToken(user.id);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: this.sanitizeUser(user),
+    };
+  }
+
   async googleLogin(idToken: string, req: Request) {
     const googleUser = await this.google.verifyToken(idToken);
 
@@ -132,6 +164,38 @@ export class AuthService {
       refreshToken,
       user: this.sanitizeUser(user),
     };
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const user = await this.users.findByEmail(email);
+
+    if (!user) {
+      return { message: 'If the email exists, a reset link has been sent' };
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    await this.passwordResetTokens.create(user.id, token, expiresAt);
+
+    this.logger.log(`Password reset token for ${email}: ${token}`);
+
+    return { message: 'If the email exists, a reset link has been sent' };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const resetToken = await this.passwordResetTokens.findByToken(token);
+
+    if (!resetToken || resetToken.used || resetToken.expiresAt < new Date()) {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.users.updatePassword(resetToken.userID, passwordHash);
+    await this.passwordResetTokens.markAsUsed(resetToken.id);
+
+    return { message: 'Password reset successfully' };
   }
 
   async getUserProfile(id: string) {

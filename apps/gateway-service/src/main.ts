@@ -45,14 +45,16 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const services = config.get<Record<string, { internal: string; external: string; }>>('gateway.services', {});
 
-  const allowedOrigins = Object.values(services).map(({ internal }) => {
+  const allowedOrigins = Object.values(services).map(({ external }) => {
     try {
-      const { origin } = new URL(internal);
+      const { origin } = new URL(external);
       return origin;
     } catch {
-      return internal;
+      return external;
     }
   });
+
+  console.log("Allowed Origins", allowedOrigins);
 
   app.enableCors({
     origin: allowedOrigins,

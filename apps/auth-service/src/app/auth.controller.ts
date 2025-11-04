@@ -18,6 +18,9 @@ import {
   PhoneLoginVerifyDto,
   RefreshTokenDto,
   GoogleIDTokenDto,
+  EmailLoginDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
 } from './dto';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthorisedUser } from './decorators/authorised-user.decorator';
@@ -70,6 +73,32 @@ export class AuthController {
     this.setRefreshTokenCookie(req, res, refreshToken, clientType);
 
     return options;
+  }
+
+  @Post('login/email')
+  @ApiOperation({ summary: 'Login with email and password' })
+  async emailLogin(
+    @Body() dto: EmailLoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.auth.emailLogin(dto.email, dto.password, req);
+    const clientType = this.getClientType(req);
+    const { refreshToken, ...options } = result;
+    this.setRefreshTokenCookie(req, res, refreshToken, clientType);
+    return options;
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Request password reset' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.auth.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password with token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.auth.resetPassword(dto.token, dto.password);
   }
 
   @Post('google')
@@ -195,7 +224,6 @@ export class AuthController {
 
   private getBaseDomain(req: Request): string | undefined {
     const host = req.get('host');
-    console.log("Host:", host);
     if (!host) return undefined;
 
     if (host.includes('localhost') || /^\d+\.\d+\.\d+\.\d+/.test(host)) {
