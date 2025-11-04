@@ -72,6 +72,10 @@ export class AuthController {
 
     this.setRefreshTokenCookie(req, res, refreshToken, clientType);
 
+    if (clientType !== 'web') {
+      return { ...options, refreshToken };
+    }
+
     return options;
   }
 
@@ -86,6 +90,11 @@ export class AuthController {
     const clientType = this.getClientType(req);
     const { refreshToken, ...options } = result;
     this.setRefreshTokenCookie(req, res, refreshToken, clientType);
+
+    if (clientType !== 'web') {
+      return { ...options, refreshToken };
+    }
+
     return options;
   }
 
@@ -114,6 +123,10 @@ export class AuthController {
 
     this.setRefreshTokenCookie(req, res, refreshToken, clientType);
 
+    if (clientType !== 'web') {
+      return { ...options, refreshToken };
+    }
+
     return options;
   }
 
@@ -138,6 +151,10 @@ export class AuthController {
     const { refreshToken: newRefreshToken, ...options } = result;
 
     this.setRefreshTokenCookie(req, res, newRefreshToken, clientType);
+
+    if (clientType !== 'web') {
+      return { ...options, refreshToken };
+    }
 
     return options;
   }
