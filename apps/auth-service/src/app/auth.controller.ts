@@ -153,7 +153,7 @@ export class AuthController {
     this.setRefreshTokenCookie(req, res, newRefreshToken, clientType);
 
     if (clientType !== 'web') {
-      return { ...options, refreshToken };
+      return { ...options, refreshToken: newRefreshToken };
     }
 
     return options;

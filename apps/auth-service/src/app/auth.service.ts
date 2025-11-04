@@ -1,5 +1,7 @@
 import {
-  Injectable, Logger,
+  BadRequestException,
+  Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -108,13 +110,13 @@ export class AuthService {
     const user = await this.users.findByEmail(email);
 
     if (!user || !user.passwordHash) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
 
     try {
@@ -188,7 +190,7 @@ export class AuthService {
     const resetToken = await this.passwordResetTokens.findByToken(token);
 
     if (!resetToken || resetToken.used || resetToken.expiresAt < new Date()) {
-      throw new UnauthorizedException('Invalid or expired reset token');
+      throw new BadRequestException('Invalid or expired reset token');
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -210,12 +212,12 @@ export class AuthService {
     const tokenRecord = await this.refreshTokens.findByToken(refreshToken);
 
     if (!tokenRecord) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new BadRequestException('Invalid refresh token');
     }
 
     if (tokenRecord.expiresAt < new Date()) {
       await this.refreshTokens.deleteByToken(refreshToken);
-      throw new UnauthorizedException('Refresh token expired');
+      throw new BadRequestException('Refresh token expired');
     }
 
     await this.refreshTokens.deleteByToken(refreshToken);
