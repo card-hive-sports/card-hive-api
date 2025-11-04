@@ -208,15 +208,18 @@ export class AuthController {
     if (clientType === 'web') {
       const isProduction = this.config.get('auth.node.environment') === 'production';
       const domain = this.getBaseDomain(req);
+      const expiresInDays = Number(this.config.get('auth.jwt.refreshTokenExpiresIn', '7'));
 
-      res.cookie('refreshToken', refreshToken, {
+      const cookieOptions = {
         httpOnly: true,
         secure: isProduction,
-        sameSite: 'strict' as const,
-        maxAge: Number(this.config.get('auth.jwt.refreshTokenExpiresIn', '7')),
+        sameSite: isProduction ? ('strict' as const) : ('lax' as const),
+        maxAge: expiresInDays * 24 * 60 * 60 * 1000,
         path: '/',
         ...(domain && { domain }),
-      });
+      };
+
+      res.cookie('refreshToken', refreshToken, cookieOptions);
     }
   }
 
@@ -227,7 +230,7 @@ export class AuthController {
     const clearOptions = {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict' as const,
+      sameSite: isProduction ? ('strict' as const) : ('lax' as const),
       path: '/',
       ...(domain && { domain }),
     };
