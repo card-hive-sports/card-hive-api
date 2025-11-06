@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@card-hive/shared-database": "workspace:*",
+    "@nestjs/jwt": "^11.0.1",
     "express": "^4.18.2",
     "tslib": "^2.3.0"
   },

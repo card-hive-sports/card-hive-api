@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IAuthorisedUser } from './types.js';
+import { IAuthorisedUser } from '../types.js';
 
 
 export const AuthorisedUser = createParamDecorator(

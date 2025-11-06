@@ -75,7 +75,7 @@ async function bootstrap() {
     .setDescription([
       '**Available Services:**',
       `- 🔐 [Auth Service API Docs](${services.auth.external}/api/docs)`,
-      `- 🔐 [Users Service API Docs](${services.users.external}/api/docs)`
+      `- 👥 [Users Service API Docs](${services.users.external}/api/docs)`
     ].join('\n'))
     .setVersion('1.0')
     .build();

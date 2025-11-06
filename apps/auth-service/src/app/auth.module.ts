@@ -25,8 +25,8 @@ import { SharedAuthModule } from '@card-hive/shared-auth';
       expandVariables: true,
     }),
     ScheduleModule.forRoot(),
-    SharedDatabaseModule,
     SharedAuthModule,
+    SharedDatabaseModule,
   ],
   controllers: [AuthController],
   providers: [

@@ -1,12 +1,13 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthGuard } from './auth.guard.js';
+import { RolesGuard, AuthGuard } from './guards/index.js';
 
 @Global()
 @Module({
   imports: [
     JwtModule.registerAsync({
+      global: true,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         return {
@@ -16,7 +17,7 @@ import { AuthGuard } from './auth.guard.js';
       }
     }),
   ],
-  providers: [AuthGuard],
-  exports: [JwtModule, AuthGuard],
+  providers: [AuthGuard, RolesGuard],
+  exports: [JwtModule, AuthGuard, RolesGuard],
 })
 export class SharedAuthModule {}
