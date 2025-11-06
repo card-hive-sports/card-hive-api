@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -51,7 +52,9 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async getUserByID(@Param('id') id: string) {
+  async getUserByID(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
     return this.users.getUserByID(id);
   }
 
@@ -62,7 +65,10 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 409, description: 'Email or phone already exists' })
-  async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  async updateUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateUserDto,
+  ) {
     return this.users.updateUser(id, dto);
   }
 
@@ -73,7 +79,9 @@ export class UsersController {
   @ApiOperation({ summary: 'Soft delete user (set isActive to false)' })
   @ApiResponse({ status: 200, description: 'User soft deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async softDeleteUser(@Param('id') id: string) {
+  async softDeleteUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
     return this.users.softDeleteUser(id);
   }
 
@@ -84,7 +92,9 @@ export class UsersController {
   @ApiOperation({ summary: 'Force delete user (permanent deletion)' })
   @ApiResponse({ status: 200, description: 'User permanently deleted' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async forceDeleteUser(@Param('id') id: string) {
+  async forceDeleteUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
     return this.users.forceDeleteUser(id);
   }
 
@@ -95,7 +105,9 @@ export class UsersController {
   @ApiOperation({ summary: 'Suspend user (set isActive to false)' })
   @ApiResponse({ status: 200, description: 'User suspended successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async suspendUser(@Param('id') id: string) {
+  async suspendUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
     return this.users.suspendUser(id);
   }
 
@@ -108,7 +120,7 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Login activities retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUserLoginActivities(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
   ) {
