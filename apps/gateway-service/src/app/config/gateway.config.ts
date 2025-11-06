@@ -31,6 +31,10 @@ export const gatewayConfig = registerAs('gateway', ()=> {
         internal: config.GATEWAY_SERVICES_AUTH,
         external: config.GATEWAY_SERVICES_AUTH_EXTERNAL,
       },
+      users: {
+        internal: config.GATEWAY_SERVICES_USERS,
+        external: config.GATEWAY_SERVICES_USERS_EXTERNAL,
+      },
     },
     cors: {
       origins: config.CORS_ORIGINS,

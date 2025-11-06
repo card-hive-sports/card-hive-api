@@ -26,23 +26,6 @@ export const usersConfig = registerAs('users', ()=> {
     node: {
       environment: config.NODE_ENV,
     },
-    database: {
-      url: config.DATABASE_URL,
-    },
-    jwt: {
-      secret: config.JWT_SECRET,
-      expiresIn: config.JWT_EXPIRES_IN,
-      refreshTokenExpiresIn: config.REFRESH_TOKEN_EXPIRES_IN,
-    },
-    twilio: {
-      accountSID: config.TWILIO_ACCOUNT_SID,
-      authToken: config.TWILIO_AUTH_TOKEN,
-      verifyServiceSID: config.TWILIO_VERIFY_SERVICE_SID,
-    },
-    google: {
-      clientID: config.GOOGLE_CLIENT_ID,
-      clientSecret: config.GOOGLE_CLIENT_SECRET,
-    },
     services: {
       gateway: config.GATEWAY_SERVICE_URL,
     }
