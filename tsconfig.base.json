@@ -18,5 +18,7 @@
     "target": "es2022",
     "customConditions": ["@card-hive/source"],
     "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }
