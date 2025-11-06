@@ -11,6 +11,6 @@ export const AuthorisedUser = createParamDecorator(
       return user?.[data];
     }
 
-    return { ...user, id: user.sub };
+    return { ...user };
   },
 );

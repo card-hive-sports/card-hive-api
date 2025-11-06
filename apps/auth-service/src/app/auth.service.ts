@@ -288,6 +288,7 @@ export class AuthService {
   private generateAccessToken(user: User): string {
     const payload: JwtPayload = {
       sub: user.id,
+      id: user.id,
       email: user.email,
       phone: user.phone,
       fullName: user.fullName,
