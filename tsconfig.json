@@ -4,9 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/auth-service-e2e"
-    },
-    {
       "path": "./apps/auth-service"
     },
     {
@@ -19,10 +16,10 @@
       "path": "./libs/shared/types"
     },
     {
-      "path": "./apps/gateway-service-e2e"
+      "path": "./apps/gateway-service"
     },
     {
-      "path": "./apps/gateway-service"
+      "path": "./apps/users-service"
     }
   ]
 }

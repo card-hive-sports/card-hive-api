@@ -19,6 +19,7 @@
     "@nestjs/swagger": "^11.2.1",
     "@prisma/client": "^6.17.1",
     "aws-cdk-lib": "^2.221.0",
+    "axios": "^1.6.0",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
     "class-transformer": "^0.5.1",
