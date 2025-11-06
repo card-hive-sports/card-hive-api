@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY tsconfig.base.json tsconfig.json nx.json eslint.config.mjs ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY libs/shared ./libs/shared
+COPY libs ./libs
 COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
 
 RUN pnpm install --frozen-lockfile
@@ -30,11 +30,10 @@ COPY --from=builder /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/${SERVICE_NAME}/dist/package.json ./
 COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 COPY --from=builder /app/libs/shared ./libs/shared
-COPY --from=builder /app/libs/shared/database/prisma ./
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN pnpm install
+RUN pnpm install --prod --ignore-scripts
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

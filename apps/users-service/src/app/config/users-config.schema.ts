@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class AuthConfigSchema {
+export class UsersConfigSchema {
   @IsString()
   NODE_ENV: string;
 

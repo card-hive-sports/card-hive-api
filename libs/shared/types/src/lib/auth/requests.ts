@@ -22,3 +22,17 @@ export interface RefreshTokenRequest {
 export interface GoogleIDTokenRequest {
   idToken: string;
 }
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+export interface EmailLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}

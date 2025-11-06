@@ -7,8 +7,7 @@
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "es2021",
-    "strictPropertyInitialization": false
+    "target": "es2021"
   },
   "include": ["src/**/*.ts"],
   "exclude": [
@@ -27,6 +26,9 @@
     },
     {
       "path": "../../libs/shared/database/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/auth/tsconfig.lib.json"
     }
   ]
 }

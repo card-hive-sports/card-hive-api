@@ -1,10 +1,10 @@
 import { plainToInstance } from 'class-transformer';
-import { AuthConfigSchema } from './auth-config.schema';
+import { UsersConfigSchema } from './users-config.schema';
 import { validateSync } from 'class-validator';
 import { registerAs } from '@nestjs/config';
 
 export const validateConfig = (config: Record<string, unknown>) => {
-  const validatedConfig = plainToInstance(AuthConfigSchema, config, {
+  const validatedConfig = plainToInstance(UsersConfigSchema, config, {
     enableImplicitConversion: true,
   });
 
@@ -13,13 +13,13 @@ export const validateConfig = (config: Record<string, unknown>) => {
   });
 
   if (errors.length > 0) {
-    throw new Error(`Auth configuration validation error: ${errors.toString()}`);
+    throw new Error(`Users configuration validation error: ${errors.toString()}`);
   }
 
   return validatedConfig;
 }
 
-export const authConfig = registerAs('auth', ()=> {
+export const usersConfig = registerAs('users', ()=> {
   const config = validateConfig(process.env);
 
   return {

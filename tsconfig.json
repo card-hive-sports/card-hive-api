@@ -20,6 +20,9 @@
     },
     {
       "path": "./apps/users-service"
+    },
+    {
+      "path": "./libs/shared/auth"
     }
   ]
 }

@@ -16,11 +16,16 @@ import { PhoneService } from './phone.service';
 import { User, AuthProvider, UserRole } from '@card-hive/shared-database';
 import {
   AuthVerificationResponse,
-  JwtPayload,
+  EmailLoginRequest,
+  ForgotPasswordRequest,
+  GoogleIDTokenRequest,
   LoginResponse,
+  PhoneLoginRequest,
   PhoneLoginVerifyRequest,
   RegisterRequest,
+  ResetPasswordRequest,
 } from '@card-hive/shared-types';
+import { JwtPayload } from '@card-hive/shared-auth';
 import { randomBytes } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
@@ -39,7 +44,7 @@ export class AuthService {
     private readonly phone: PhoneService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
-    private readonly google: GoogleService,
+    private readonly google: GoogleService
   ) {}
 
   async register(data: RegisterRequest, req: Request) {
@@ -50,13 +55,16 @@ export class AuthService {
       new Date(data.dateOfBirth),
       UserRole.CUSTOMER,
       AuthProvider.PHONE,
-      data.phone,
+      data.phone
     );
 
-    return this.phoneLoginRequest(data.phone, req);
+    return this.phoneLoginRequest({ phone: data.phone }, req);
   }
 
-  async phoneLoginRequest(phone: string, req: Request): Promise<AuthVerificationResponse> {
+  async phoneLoginRequest(
+    { phone }: PhoneLoginRequest,
+    req: Request
+  ): Promise<AuthVerificationResponse> {
     const user = await this.users.findByPhone(phone);
 
     if (!user) {
@@ -66,14 +74,20 @@ export class AuthService {
     await this.phone.sendVerificationCode(phone);
     let sessionID: string | undefined;
     try {
-      sessionID = await this.loginActivities.recordLogin(user, AuthProvider.PHONE, req);
+      sessionID = await this.loginActivities.recordLogin(
+        user,
+        AuthProvider.PHONE,
+        req
+      );
     } catch (e) {
-    //   Doesn't matter
+      console.error('Failed to record login activity: ', e);
     }
     return { message: 'Verification code sent', sessionID };
   }
 
-  async phoneLoginVerify(data: PhoneLoginVerifyRequest): Promise<LoginResponse> {
+  async phoneLoginVerify(
+    data: PhoneLoginVerifyRequest
+  ): Promise<LoginResponse> {
     const { phone, code, sessionID } = data;
 
     try {
@@ -106,7 +120,10 @@ export class AuthService {
     }
   }
 
-  async emailLogin(email: string, password: string, req: Request): Promise<LoginResponse> {
+  async emailLogin(
+    { email, password }: EmailLoginRequest,
+    req: Request
+  ): Promise<LoginResponse> {
     const user = await this.users.findByEmail(email);
 
     if (!user || !user.passwordHash) {
@@ -122,7 +139,7 @@ export class AuthService {
     try {
       await this.loginActivities.recordLogin(user, AuthProvider.EMAIL, req);
     } catch (e: any) {
-      this.logger.error("Failed to log activities", e.message);
+      this.logger.error('Failed to log activities', e.message);
     }
 
     const accessToken = this.generateAccessToken(user);
@@ -135,7 +152,7 @@ export class AuthService {
     };
   }
 
-  async googleLogin(idToken: string, req: Request) {
+  async googleLogin({ idToken }: GoogleIDTokenRequest, req: Request) {
     const googleUser = await this.google.verifyToken(idToken);
 
     let user = await this.users.findByEmail(googleUser.email);
@@ -155,7 +172,7 @@ export class AuthService {
     try {
       await this.loginActivities.recordLogin(user, AuthProvider.GOOGLE, req);
     } catch (e: any) {
-      this.logger.error("Failed to log activities", e.message);
+      this.logger.error('Failed to log activities', e.message);
     }
 
     const accessToken = this.generateAccessToken(user);
@@ -168,7 +185,9 @@ export class AuthService {
     };
   }
 
-  async forgotPassword(email: string): Promise<{ message: string }> {
+  async forgotPassword({
+    email,
+  }: ForgotPasswordRequest): Promise<{ message: string }> {
     const user = await this.users.findByEmail(email);
 
     if (!user) {
@@ -186,7 +205,10 @@ export class AuthService {
     return { message: 'If the email exists, a reset link has been sent' };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  async resetPassword({
+    token,
+    password: newPassword,
+  }: ResetPasswordRequest): Promise<{ message: string }> {
     const resetToken = await this.passwordResetTokens.findByToken(token);
 
     if (!resetToken || resetToken.used || resetToken.expiresAt < new Date()) {
@@ -208,7 +230,9 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
-  async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async refresh(
+    refreshToken: string
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokenRecord = await this.refreshTokens.findByToken(refreshToken);
 
     if (!tokenRecord) {
@@ -223,7 +247,9 @@ export class AuthService {
     await this.refreshTokens.deleteByToken(refreshToken);
 
     const accessToken = this.generateAccessToken(tokenRecord.user);
-    const newRefreshToken = await this.generateRefreshToken(tokenRecord.user.id);
+    const newRefreshToken = await this.generateRefreshToken(
+      tokenRecord.user.id
+    );
 
     return {
       accessToken,
@@ -235,7 +261,7 @@ export class AuthService {
     try {
       await this.refreshTokens.deleteByToken(refreshToken);
     } catch (error: any) {
-      this.logger.error("Something went wrong: ", error.message);
+      this.logger.error('Something went wrong: ', error.message);
     }
 
     return { message: 'Logged out successfully' };
@@ -249,7 +275,9 @@ export class AuthService {
   private async generateRefreshToken(userID: string): Promise<string> {
     const token = randomBytes(64).toString('hex');
     const expiresAt = new Date();
-    const expiresIn = Number(this.config.get('auth.jwt.refreshTokenExpiresIn', '7'));
+    const expiresIn = Number(
+      this.config.get('auth.refreshTokenExpiresIn', '7')
+    );
     expiresAt.setDate(expiresAt.getDate() + expiresIn);
 
     await this.refreshTokens.create(userID, token, expiresAt);

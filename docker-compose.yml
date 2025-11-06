@@ -64,6 +64,24 @@ services:
       redis:
         condition: service_healthy
 
+  users:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: users-service
+    container_name: users
+    ports:
+      - "3002:3002"
+    env_file:
+      - .env
+      - apps/users-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
     driver: local

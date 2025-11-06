@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IAuthorisedUser } from '@card-hive/shared-types';
+import { IAuthorisedUser } from './types.js';
 
 
 export const AuthorisedUser = createParamDecorator(

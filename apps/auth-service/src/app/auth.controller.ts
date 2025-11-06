@@ -22,8 +22,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto';
-import { AuthGuard } from './guards/auth.guard';
-import { AuthorisedUser } from './decorators/authorised-user.decorator';
+import { AuthGuard, AuthorisedUser } from '@card-hive/shared-auth';
 import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Authentication')
@@ -46,26 +45,26 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Register new user' })
   @ApiResponse({ status: 201, description: 'User registered successfully' })
-  async register(@Body() registerDto: RegisterDto, @Req() req: Request) {
-    return this.auth.register(registerDto, req);
+  async register(@Body() body: RegisterDto, @Req() req: Request) {
+    return this.auth.register(body, req);
   }
 
   @Post('login/phone/request')
   @ApiOperation({ summary: 'Request phone verification code' })
   async phoneLoginRequest(
-    @Body() dto: PhoneLoginRequestDto,
+    @Body() body: PhoneLoginRequestDto,
     @Req() req: Request,
   ) {
-    return this.auth.phoneLoginRequest(dto.phone, req);
+    return this.auth.phoneLoginRequest(body, req);
   }
 
   @Post('login/phone/verify')
   async phoneLoginVerify(
-    @Body() dto: PhoneLoginVerifyDto,
+    @Body() body: PhoneLoginVerifyDto,
     @Req() req: Request,
-    @Res({ passthrough: true }) res: Response, // Add this
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.auth.phoneLoginVerify(dto);
+    const result = await this.auth.phoneLoginVerify(body);
     const clientType = this.getClientType(req);
 
     const { refreshToken, ...options } = result;
@@ -82,11 +81,11 @@ export class AuthController {
   @Post('login/email')
   @ApiOperation({ summary: 'Login with email and password' })
   async emailLogin(
-    @Body() dto: EmailLoginDto,
+    @Body() body: EmailLoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.auth.emailLogin(dto.email, dto.password, req);
+    const result = await this.auth.emailLogin(body, req);
     const clientType = this.getClientType(req);
     const { refreshToken, ...options } = result;
     this.setRefreshTokenCookie(req, res, refreshToken, clientType);
@@ -100,14 +99,14 @@ export class AuthController {
 
   @Post('forgot-password')
   @ApiOperation({ summary: 'Request password reset' })
-  async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.auth.forgotPassword(dto.email);
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    return this.auth.forgotPassword(body);
   }
 
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset password with token' })
-  async resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.auth.resetPassword(dto.token, dto.password);
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    return this.auth.resetPassword(body);
   }
 
   @Post('google')
@@ -116,7 +115,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response, // Add this
   ) {
-    const result = await this.auth.googleLogin(body.idToken, req);
+    const result = await this.auth.googleLogin(body, req);
     const clientType = this.getClientType(req);
 
     const { refreshToken, ...options } = result;
@@ -132,7 +131,7 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(
-    @Body() dto: RefreshTokenDto,
+    @Body() body: RefreshTokenDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -140,7 +139,7 @@ export class AuthController {
 
     const refreshToken = clientType === 'web'
       ? req.cookies?.refreshToken
-      : dto.refreshToken;
+      : body.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token required');
@@ -161,7 +160,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(
-    @Body() dto: RefreshTokenDto,
+    @Body() body: RefreshTokenDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -169,7 +168,7 @@ export class AuthController {
 
     const refreshToken = clientType === 'web'
       ? req.cookies?.refreshToken
-      : dto.refreshToken;
+      : body.refreshToken;
 
     if (refreshToken) {
       await this.auth.logout(refreshToken);
@@ -208,7 +207,7 @@ export class AuthController {
     if (clientType === 'web') {
       const isProduction = this.config.get('auth.node.environment') === 'production';
       const domain = this.getBaseDomain(req);
-      const expiresInDays = Number(this.config.get('auth.jwt.refreshTokenExpiresIn', '7'));
+      const expiresInDays = Number(this.config.get('auth.refreshTokenExpiresIn', '7'));
 
       const cookieOptions = {
         httpOnly: true,

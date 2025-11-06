@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SharedDatabaseModule } from '@card-hive/shared-database';
 import { AuthController } from './auth.controller';
@@ -13,9 +12,9 @@ import {
 } from './repositories';
 import { PhoneService } from './phone.service';
 import { authConfig } from './config/auth.config';
-import { AuthGuard } from './guards/auth.guard';
 import { CleanupJob } from './jobs/cleanup.job';
 import { GoogleService } from './google.service';
+import { SharedAuthModule } from '@card-hive/shared-auth';
 
 @Module({
   imports: [
@@ -27,15 +26,7 @@ import { GoogleService } from './google.service';
     }),
     ScheduleModule.forRoot(),
     SharedDatabaseModule,
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          secret: config.get('auth.jwt.secret'),
-          signOptions: { expiresIn: config.get('auth.jwt.expiresIn') },
-        }
-      }
-    }),
+    SharedAuthModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -46,7 +37,6 @@ import { GoogleService } from './google.service';
     PasswordResetTokensRepository,
     PhoneService,
     GoogleService,
-    AuthGuard,
     CleanupJob
   ],
 })
