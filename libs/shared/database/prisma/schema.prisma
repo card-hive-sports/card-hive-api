@@ -27,23 +27,27 @@ enum AuthProvider {
 }
 
 model User {
-  id           String    @id @default(uuid()) @db.Uuid
-  fullName     String    @map("full_name")
-  email        String?   @unique
-  phone        String?   @unique
-  dateOfBirth  DateTime  @map("date_of_birth")
-  role         UserRole  @default(CUSTOMER)
-  kycStatus    KYCStatus @default(PENDING) @map("kyc_status")
-  isActive     Boolean   @default(true) @map("is_active")
-  isDeleted    Boolean   @default(false) @map("is_deleted")
-  passwordHash String?   @map("password_hash")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id             String    @id @default(uuid()) @db.Uuid
+  fullName       String    @map("full_name")
+  email          String?   @unique
+  phone          String?   @unique
+  dateOfBirth    DateTime  @map("date_of_birth")
+  role           UserRole  @default(CUSTOMER)
+  kycStatus      KYCStatus @default(PENDING) @map("kyc_status")
+  isActive       Boolean   @default(true) @map("is_active")
+  isDeleted      Boolean   @default(false) @map("is_deleted")
+  passwordHash   String?   @map("password_hash")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  walletBalance  Decimal   @default(0) @map("wallet_balance") @db.Decimal(10, 2)
+  walletCurrency String    @default("USD") @map("wallet_currency") @db.VarChar(3)
 
   authProviders       AuthProviderLink[]
   refreshToken        RefreshToken[]
   loginActivities     LoginActivity[]
   passwordResetTokens PasswordResetToken[]
+  inventoryItems      InventoryItem[]
+  transactions        Transaction[]
 
   @@map("users")
 }
@@ -109,4 +113,65 @@ model PasswordResetToken {
   @@index([userID])
   @@index([token])
   @@map("password_reset_tokens")
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PACK_PURCHASE
+  MARKETPLACE_SALE
+  MARKETPLACE_PURCHASE
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Transaction {
+  id        String            @id @default(uuid()) @db.Uuid
+  userID    String            @map("user_id") @db.Uuid
+  type      TransactionType
+  amount    Decimal           @db.Decimal(10, 2)
+  status    TransactionStatus @default(PENDING)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  @@index([userID])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+enum CardRarity {
+  GRAIL
+  CHASE
+  LINEUP
+}
+
+model Card {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String
+  rarity    CardRarity
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  inventoryItems InventoryItem[]
+
+  @@map("cards")
+}
+
+model InventoryItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  userID     String   @map("user_id") @db.Uuid
+  cardID     String   @map("card_id") @db.Uuid
+  acquiredAt DateTime @default(now()) @map("acquired_at")
+
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  card Card @relation(fields: [cardID], references: [id], onDelete: Restrict)
+
+  @@index([userID])
+  @@index([cardID])
+  @@map("inventory_items")
 }
