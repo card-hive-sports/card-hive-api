@@ -35,6 +35,7 @@ model User {
   role         UserRole  @default(CUSTOMER)
   kycStatus    KYCStatus @default(PENDING) @map("kyc_status")
   isActive     Boolean   @default(true) @map("is_active")
+  isDeleted     Boolean   @default(false) @map("is_deleted")
   passwordHash String?   @map("password_hash")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
