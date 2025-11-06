@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { usersConfig } from './config/users.config';
 import { APP_GUARD } from '@nestjs/core';
 import { UsersRepository } from './repositories';
+import { SelfOrRolesGuard } from './guards';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersRepository } from './repositories';
   providers: [
     UsersService,
     UsersRepository,
+    SelfOrRolesGuard,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

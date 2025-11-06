@@ -18,6 +18,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, GetUsersQueryDto } from './dto';
 import { Roles, RolesGuard } from '@card-hive/shared-auth';
 import { UserRole } from '@card-hive/shared-database';
+import { SelfOrRolesGuard } from './guards';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -45,8 +46,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @UseGuards(SelfOrRolesGuard)
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -55,8 +56,8 @@ export class UsersController {
   }
 
   @Put(':id')
-  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN)
+  @UseGuards(SelfOrRolesGuard)
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -66,8 +67,8 @@ export class UsersController {
   }
 
   @Delete(':id/soft')
-  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @UseGuards(SelfOrRolesGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Soft delete user (set isActive to false)' })
   @ApiResponse({ status: 200, description: 'User soft deleted successfully' })
@@ -99,8 +100,8 @@ export class UsersController {
   }
 
   @Get(':id/login-activities')
-  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @UseGuards(SelfOrRolesGuard)
   @ApiOperation({ summary: 'Get user login activities' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })
