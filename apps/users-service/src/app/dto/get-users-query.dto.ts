@@ -1,7 +1,7 @@
 import { IsOptional, IsInt, Min, Max, IsString, IsEnum, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { GetUsersQueryParams } from '@card-hive/shared-types';
+import { Transform, Type } from 'class-transformer';
+import { GetUsersQueryParams, SORT_ORDER, USERS_SORT_OPTIONS } from '@card-hive/shared-types';
 import { UserRole, KYCStatus } from '@card-hive/shared-database';
 
 export class GetUsersQueryDto implements GetUsersQueryParams {
@@ -37,25 +37,31 @@ export class GetUsersQueryDto implements GetUsersQueryParams {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform((v) => v.value === 'false' ? false : (v.value === 'true' ? true : v.value))
   @IsBoolean()
   isActive?: boolean;
 
-  @ApiProperty({
-    required: false,
-    enum: ['createdAt', 'fullName', 'email'],
-    default: 'createdAt'
-  })
+  @ApiProperty({ required: false })
   @IsOptional()
-  @IsEnum(['createdAt', 'fullName', 'email'])
-  sortBy?: 'createdAt' | 'fullName' | 'email' = 'createdAt';
+  @Transform((v) => v.value === 'false' ? false : (v.value === 'true' ? true : v.value))
+  @IsBoolean()
+  isDeleted?: boolean;
 
   @ApiProperty({
     required: false,
-    enum: ['asc', 'desc'],
-    default: 'desc'
+    enum: USERS_SORT_OPTIONS,
+    default: USERS_SORT_OPTIONS.CREATED_AT
   })
   @IsOptional()
-  @IsEnum(['asc', 'desc'])
-  sortOrder?: 'asc' | 'desc' = 'desc';
+  @IsEnum(USERS_SORT_OPTIONS)
+  sortBy?: USERS_SORT_OPTIONS = USERS_SORT_OPTIONS.CREATED_AT;
+
+  @ApiProperty({
+    required: false,
+    enum: SORT_ORDER,
+    default: SORT_ORDER.DESC
+  })
+  @IsOptional()
+  @IsEnum(SORT_ORDER)
+  sortOrder?: SORT_ORDER = SORT_ORDER.DESC;
 }

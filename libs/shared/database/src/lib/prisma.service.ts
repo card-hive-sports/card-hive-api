@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -73,32 +73,5 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         hasPrev: page > 1,
       },
     };
-  }
-
-  async executeInTransaction<T>(
-    fn: (tx: Prisma.TransactionClient) => Promise<T>,
-    retries = 3
-  ): Promise<T> {
-    for (let attempt = 1; attempt <= retries; attempt++) {
-      try {
-        return await this.$transaction(fn);
-      } catch (error: any) {
-        if (attempt === retries || !this.isRetryableError(error)) {
-          throw error;
-        }
-
-        await this.delay(Math.pow(2, attempt) * 100);
-      }
-    }
-    throw new Error('Transaction failed after all retries');
-  }
-
-  private isRetryableError(error: any): boolean {
-    const retryableCodes = ['P2034', 'P2037'];
-    return retryableCodes.includes(error.code);
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

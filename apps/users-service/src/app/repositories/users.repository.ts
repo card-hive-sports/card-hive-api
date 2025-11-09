@@ -60,11 +60,20 @@ export class UsersRepository {
       where.isActive = query.isActive;
     }
 
+    if (query.isDeleted !== undefined) {
+      where.isDeleted = query.isDeleted;
+    }
+
+    const orderBy: Record<string, string> = {};
+    if (query.sortBy && query.sortOrder) {
+      orderBy[query.sortBy] = query.sortOrder;
+    }
+
     return this.prisma.paginate<User>(this.prisma.user, {
       page: query.page,
       limit: query.limit,
       where,
-      orderBy: { [query.sortBy!]: query.sortOrder },
+      orderBy,
       select: {
         id: true,
         fullName: true,
@@ -72,10 +81,17 @@ export class UsersRepository {
         phone: true,
         dateOfBirth: true,
         role: true,
+        walletBalance: true,
+        walletCurrency: true,
         kycStatus: true,
         isActive: true,
         createdAt: true,
         updatedAt: true,
+        _count: {
+          select: {
+            inventoryItems: true,
+          },
+        },
       },
     });
   }

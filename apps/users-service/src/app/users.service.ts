@@ -3,6 +3,12 @@ import { UsersRepository } from './repositories';
 import { CreateUserDto, UpdateUserDto, GetUsersQueryDto } from './dto';
 import { User } from '@card-hive/shared-database';
 
+type UserWithInventoryCount = User & {
+  _count: {
+    inventoryItems: number;
+  };
+};
+
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepo: UsersRepository) {}
@@ -21,9 +27,13 @@ export class UsersService {
 
   async getAllUsers(query: GetUsersQueryDto) {
     const result = await this.usersRepo.findAll(query);
+    const users = result.data as UserWithInventoryCount[];
 
     return {
-      data: result.data.map(user => this.sanitizeUser(user)),
+      data: users.map(user => ({
+        ...this.sanitizeUser(user),
+        cardsOwned: user._count.inventoryItems,
+      })),
       pagination: result.pagination,
     };
   }
