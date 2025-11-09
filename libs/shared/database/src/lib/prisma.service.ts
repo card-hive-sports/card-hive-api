@@ -75,7 +75,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     };
   }
 
-  async transaction<T>(
+  async executeInTransaction<T>(
     fn: (tx: Prisma.TransactionClient) => Promise<T>,
     retries = 3
   ): Promise<T> {
