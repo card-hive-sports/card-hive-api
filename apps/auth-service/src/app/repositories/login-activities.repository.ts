@@ -7,14 +7,20 @@ import type { Request } from 'express';
 export class LoginActivitiesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async recordLogin(user: User, loginMethod: AuthProvider, req: Request, markAsSuccessful = false) {
-    const userAgent = req.headers['user-agent'];
-    const deviceInfo = this.parseUserAgent(userAgent);
+  async recordLogin(
+    user: User,
+    loginMethod: AuthProvider,
+    req: Request,
+    markAsSuccessful = false
+  ) {
+    const userAgent = this.extractUserAgent(req);
+    const deviceInfo = this.parseUserAgent(userAgent ?? undefined);
 
     const activity = await this.prisma.loginActivity.create({
       data: {
         userID: user.id,
-        ipAddress: (req.ip || req.headers['x-forwarded-for']) as string,
+        ipAddress: this.extractClientIP(req),
+        userAgent,
         deviceType: deviceInfo.deviceType,
         platform: deviceInfo.platform,
         browser: deviceInfo.browser,
@@ -40,7 +46,59 @@ export class LoginActivitiesRepository {
     });
   }
 
-  private parseUserAgent(userAgent?: string) {
+  private extractUserAgent(req: Request): string | null {
+    const primary = this.ensureHeaderValue(req.headers['user-agent']);
+    if (primary) {
+      return primary.substring(0, 500);
+    }
+
+    const forwarded = this.ensureHeaderValue(req.headers['x-forwarded-user-agent']);
+    if (forwarded) {
+      return forwarded.substring(0, 500);
+    }
+
+    return null;
+  }
+
+  private extractClientIP(req: Request): string | null {
+    const headerCandidates = [
+      'cf-connecting-ip',
+      'x-forwarded-for',
+      'x-real-ip',
+    ] as const;
+
+    for (const header of headerCandidates) {
+      const value = this.ensureHeaderValue(req.headers[header]);
+      if (value) {
+        return this.normalizeIP(value.split(',')[0].trim());
+      }
+    }
+
+    const directIP = req.ip || req.socket?.remoteAddress;
+    return directIP ? this.normalizeIP(directIP) : null;
+  }
+
+  private ensureHeaderValue(value: string | string[] | undefined): string | null {
+    if (!value) {
+      return null;
+    }
+    return Array.isArray(value) ? value[0] : value;
+  }
+
+  private normalizeIP(ip?: string | null) {
+    if (!ip) {
+      return null;
+    }
+    if (ip.startsWith('::ffff:')) {
+      return ip.substring(7);
+    }
+    if (ip === '::1') {
+      return '127.0.0.1';
+    }
+    return ip;
+  }
+
+  private parseUserAgent(userAgent?: string | null) {
     if (!userAgent) {
       return {
         deviceType: 'unknown',

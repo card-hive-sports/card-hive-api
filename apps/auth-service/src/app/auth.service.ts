@@ -130,14 +130,18 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
+    const sessionID = await this.loginActivities.recordLogin(user, AuthProvider.EMAIL, req);
+
     const isValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isValid) {
-      throw new BadRequestException('Invalid credentials');
+      const message = 'Invalid credentials';
+      await this.loginActivities.markFailure(sessionID, message);
+      throw new BadRequestException(message);
     }
 
     try {
-      await this.loginActivities.recordLogin(user, AuthProvider.EMAIL, req);
+      await this.loginActivities.markSuccess(sessionID);
     } catch (e: any) {
       this.logger.error('Failed to log activities', e.message);
     }

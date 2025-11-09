@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IAuthorisedUser } from '@card-hive/shared-auth';
+import { IAuthorisedUser } from '../types.js';
 
 @Injectable()
 export class SelfOrRolesGuard implements CanActivate {

@@ -85,6 +85,8 @@ export class UsersRepository {
         walletCurrency: true,
         kycStatus: true,
         isActive: true,
+        isDeleted: true,
+        passwordHash: true,
         createdAt: true,
         updatedAt: true,
         _count: {
@@ -96,10 +98,29 @@ export class UsersRepository {
     });
   }
 
-  async findByID(id: string): Promise<User> {
+  async findByID(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        dateOfBirth: true,
+        role: true,
+        walletBalance: true,
+        walletCurrency: true,
+        kycStatus: true,
+        isActive: true,
+        isDeleted: true,
+        passwordHash: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            inventoryItems: true,
+          },
+        },
         authProviders: true,
       },
     });

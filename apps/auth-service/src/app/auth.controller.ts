@@ -8,8 +8,9 @@ import {
   Req,
   UnauthorizedException,
   Res,
+  ForbiddenException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import {
@@ -24,6 +25,7 @@ import {
 } from './dto';
 import { AuthGuard, AuthorisedUser } from '@card-hive/shared-auth';
 import { ConfigService } from '@nestjs/config';
+import { UserRole } from '@card-hive/shared-database';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -239,6 +241,18 @@ export class AuthController {
 
   private getClientType(req: Request): string {
     return (req.headers['x-client-type'] as string) || 'web';
+  }
+
+  private ensureSelfOrAdmin(requesterID: string, role: UserRole, targetUserID: string) {
+    if (requesterID === targetUserID) {
+      return;
+    }
+
+    if (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN) {
+      return;
+    }
+
+    throw new ForbiddenException('Not allowed to view login activities for this user');
   }
 
   private getBaseDomain(req: Request): string | undefined {

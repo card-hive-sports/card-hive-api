@@ -17,9 +17,8 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, GetUsersQueryDto } from './dto';
-import { Roles, RolesGuard } from '@card-hive/shared-auth';
+import { Roles, RolesGuard, SelfOrRolesGuard } from '@card-hive/shared-auth';
 import { UserRole } from '@card-hive/shared-database';
-import { SelfOrRolesGuard } from './guards';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -116,13 +115,13 @@ export class UsersController {
   @UseGuards(SelfOrRolesGuard)
   @ApiOperation({ summary: 'Get user login activities' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 5 })
   @ApiResponse({ status: 200, description: 'Login activities retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUserLoginActivities(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
   ) {
     return this.users.getUserLoginActivities(id, page, limit);
   }

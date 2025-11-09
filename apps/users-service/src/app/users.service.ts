@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './repositories';
 import { CreateUserDto, UpdateUserDto, GetUsersQueryDto } from './dto';
 import { User } from '@card-hive/shared-database';
-
-type UserWithInventoryCount = User & {
-  _count: {
-    inventoryItems: number;
-  };
-};
+import { UserWithInventoryCount } from '@card-hive/shared-types';
 
 @Injectable()
 export class UsersService {
@@ -39,8 +34,12 @@ export class UsersService {
   }
 
   async getUserByID(id: string) {
-    const user = await this.usersRepo.findByID(id);
-    return this.sanitizeUser(user);
+    const result = await this.usersRepo.findByID(id);
+    const user = result as UserWithInventoryCount;
+    return {
+      ...this.sanitizeUser(user),
+      cardsOwned: user._count.inventoryItems,
+    };
   }
 
   async updateUser(id: string, dto: UpdateUserDto) {

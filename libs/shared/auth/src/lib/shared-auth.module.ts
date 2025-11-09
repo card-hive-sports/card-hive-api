@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { RolesGuard, AuthGuard } from './guards/index.js';
+import { RolesGuard, AuthGuard, SelfOrRolesGuard } from './guards/index.js';
 
 @Global()
 @Module({
@@ -17,7 +17,7 @@ import { RolesGuard, AuthGuard } from './guards/index.js';
       }
     }),
   ],
-  providers: [AuthGuard, RolesGuard],
-  exports: [JwtModule, AuthGuard, RolesGuard],
+  providers: [AuthGuard, RolesGuard, SelfOrRolesGuard],
+  exports: [JwtModule, AuthGuard, RolesGuard, SelfOrRolesGuard],
 })
 export class SharedAuthModule {}
