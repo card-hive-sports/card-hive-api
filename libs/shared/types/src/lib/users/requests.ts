@@ -41,4 +41,6 @@ export interface GetUsersQueryParams {
   isDeleted?: boolean;
   sortBy?: USERS_SORT_OPTIONS;
   sortOrder?: SORT_ORDER;
+  startDate?: string | Date;
+  endDate?: string | Date;
 }

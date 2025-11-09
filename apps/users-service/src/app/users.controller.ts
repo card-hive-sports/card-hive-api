@@ -13,6 +13,7 @@ import {
   DefaultValuePipe,
   UseGuards,
   ParseUUIDPipe,
+  Patch,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -71,6 +72,19 @@ export class UsersController {
     return this.users.updateUser(id, dto);
   }
 
+  @Patch(':id/unarchive')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Unarchive user (set isActive to false)' })
+  @ApiResponse({ status: 200, description: 'User unarchived successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async unarchiveUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return this.users.unarchiveUser(id);
+  }
+
   @Delete(':id/soft')
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @UseGuards(SelfOrRolesGuard)
@@ -97,7 +111,7 @@ export class UsersController {
     return this.users.forceDeleteUser(id);
   }
 
-  @Post(':id/suspend')
+  @Patch(':id/suspend')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.OK)
@@ -108,6 +122,19 @@ export class UsersController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ) {
     return this.users.suspendUser(id);
+  }
+
+  @Patch(':id/unsuspend')
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Unsuspend user (set isActive to true)' })
+  @ApiResponse({ status: 200, description: 'User unsuspended successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async unsuspendUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return this.users.unsuspendUser(id);
   }
 
   @Get(':id/login-activities')

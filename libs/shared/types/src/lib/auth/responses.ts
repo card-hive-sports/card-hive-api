@@ -1,6 +1,6 @@
 import { User } from '@card-hive/shared-database';
 
-export interface LoginResponse {
+export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: Partial<User>;

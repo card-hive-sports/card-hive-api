@@ -58,6 +58,11 @@ export class UsersService {
     return this.sanitizeUser(user);
   }
 
+  async unarchiveUser(id: string) {
+    const user = await this.usersRepo.unarchive(id);
+    return this.sanitizeUser(user);
+  }
+
   async forceDeleteUser(id: string) {
     await this.usersRepo.forceDelete(id);
     return { message: 'User permanently deleted' };
@@ -65,6 +70,11 @@ export class UsersService {
 
   async suspendUser(id: string) {
     const user = await this.usersRepo.suspend(id);
+    return this.sanitizeUser(user);
+  }
+
+  async unsuspendUser(id: string) {
+    const user = await this.usersRepo.unsuspend(id);
     return this.sanitizeUser(user);
   }
 

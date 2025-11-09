@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, Min, Max, IsString, IsEnum, IsBoolean } from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsString, IsEnum, IsBoolean, IsDate } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { GetUsersQueryParams, SORT_ORDER, USERS_SORT_OPTIONS } from '@card-hive/shared-types';
@@ -64,4 +64,26 @@ export class GetUsersQueryDto implements GetUsersQueryParams {
   @IsOptional()
   @IsEnum(SORT_ORDER)
   sortOrder?: SORT_ORDER = SORT_ORDER.DESC;
+
+  @ApiProperty({
+    required: false,
+    description: 'Filter users created on or after this date',
+    type: String,
+    format: 'date-time'
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  startDate?: Date;
+
+  @ApiProperty({
+    required: false,
+    description: 'Filter users created on or before this date',
+    type: String,
+    format: 'date-time'
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  endDate?: Date;
 }

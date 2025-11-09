@@ -19,7 +19,7 @@ import {
   EmailLoginRequest,
   ForgotPasswordRequest,
   GoogleIDTokenRequest,
-  LoginResponse,
+  AuthResponse,
   PhoneLoginRequest,
   PhoneLoginVerifyRequest,
   RegisterRequest,
@@ -87,7 +87,7 @@ export class AuthService {
 
   async phoneLoginVerify(
     data: PhoneLoginVerifyRequest
-  ): Promise<LoginResponse> {
+  ): Promise<AuthResponse> {
     const { phone, code, sessionID } = data;
 
     try {
@@ -123,7 +123,7 @@ export class AuthService {
   async emailLogin(
     { email, password }: EmailLoginRequest,
     req: Request
-  ): Promise<LoginResponse> {
+  ): Promise<AuthResponse> {
     const user = await this.users.findByEmail(email);
 
     if (!user || !user.passwordHash) {
@@ -156,7 +156,7 @@ export class AuthService {
     };
   }
 
-  async googleLogin({ idToken }: GoogleIDTokenRequest, req: Request) {
+  async googleLogin({ idToken }: GoogleIDTokenRequest, req: Request): Promise<AuthResponse> {
     const googleUser = await this.google.verifyToken(idToken);
 
     let user = await this.users.findByEmail(googleUser.email);
@@ -236,7 +236,7 @@ export class AuthService {
 
   async refresh(
     refreshToken: string
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<AuthResponse> {
     const tokenRecord = await this.refreshTokens.findByToken(refreshToken);
 
     if (!tokenRecord) {
@@ -255,9 +255,15 @@ export class AuthService {
       tokenRecord.user.id
     );
 
+    const user = await this.users.findByID(tokenRecord.user.id);
+    if (!user) {
+      throw new BadRequestException('User not found!');
+    }
+
     return {
       accessToken,
       refreshToken: newRefreshToken,
+      user: this.sanitizeUser(user),
     };
   }
 

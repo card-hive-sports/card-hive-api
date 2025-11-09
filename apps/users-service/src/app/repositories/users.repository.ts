@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService, User, UserRole, Prisma } from '@card-hive/shared-database';
 import { GetUsersQueryDto } from '../dto';
 
@@ -62,6 +62,19 @@ export class UsersRepository {
 
     if (query.isDeleted !== undefined) {
       where.isDeleted = query.isDeleted;
+    }
+
+    const startDate = query.startDate ? new Date(query.startDate) : undefined;
+    const endDate = query.endDate ? new Date(query.endDate) : undefined;
+
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) {
+        where.createdAt.gte = startDate;
+      }
+      if (endDate) {
+        where.createdAt.lte = endDate;
+      }
     }
 
     const orderBy: Record<string, string> = {};
@@ -174,7 +187,16 @@ export class UsersRepository {
 
     return this.prisma.user.update({
       where: { id },
-      data: { isActive: false },
+      data: { isActive: false, isDeleted: true },
+    });
+  }
+
+  async unarchive(id: string): Promise<User> {
+    await this.findByID(id);
+
+    return this.prisma.user.update({
+      where: { id, isActive: false, isDeleted: true },
+      data: { isActive: true, isDeleted: false },
     });
   }
 
@@ -187,7 +209,21 @@ export class UsersRepository {
   }
 
   async suspend(id: string): Promise<User> {
-    return this.softDelete(id);
+    await this.findByID(id);
+
+    return this.prisma.user.update({
+      where: { id, isActive: true, isDeleted: false },
+      data: { isActive: false, isDeleted: false },
+    });
+  }
+
+  async unsuspend(id: string): Promise<User> {
+    await this.findByID(id);
+
+    return this.prisma.user.update({
+      where: { id, isActive: false, isDeleted: false },
+      data: { isActive: true },
+    });
   }
 
   async getLoginActivities(userID: string, page = 1, limit = 20) {
