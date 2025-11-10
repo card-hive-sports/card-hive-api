@@ -15,6 +15,7 @@ import { authConfig } from './config/auth.config';
 import { CleanupJob } from './jobs/cleanup.job';
 import { GoogleService } from './google.service';
 import { SharedAuthModule } from '@card-hive/shared-auth';
+import { LoginActivitiesCache } from './cache/login-activities.cache';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { SharedAuthModule } from '@card-hive/shared-auth';
     PasswordResetTokensRepository,
     PhoneService,
     GoogleService,
-    CleanupJob
+    CleanupJob,
+    LoginActivitiesCache,
   ],
 })
 export class AuthModule {}

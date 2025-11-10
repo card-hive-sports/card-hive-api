@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { PrismaService, User, UserRole, Prisma } from '@card-hive/shared-database';
 import { GetUsersQueryDto } from '../dto';
 
@@ -223,17 +223,6 @@ export class UsersRepository {
     return this.prisma.user.update({
       where: { id, isActive: false, isDeleted: false },
       data: { isActive: true },
-    });
-  }
-
-  async getLoginActivities(userID: string, page = 1, limit = 20) {
-    await this.findByID(userID);
-
-    return this.prisma.paginate(this.prisma.loginActivity, {
-      page,
-      limit,
-      where: { userID },
-      orderBy: { loginAt: 'desc' },
     });
   }
 }

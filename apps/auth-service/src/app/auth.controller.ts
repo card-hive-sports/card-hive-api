@@ -8,7 +8,9 @@ import {
   Req,
   UnauthorizedException,
   Res,
-  ForbiddenException,
+  Param,
+  Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
@@ -22,8 +24,9 @@ import {
   EmailLoginDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  GetLoginActivitiesDto,
 } from './dto';
-import { AuthGuard, AuthorisedUser } from '@card-hive/shared-auth';
+import { AuthGuard, AuthorisedUser, Roles, SelfOrRolesGuard } from '@card-hive/shared-auth';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from '@card-hive/shared-database';
 
@@ -200,6 +203,30 @@ export class AuthController {
     return this.auth.getUserProfile(id);
   }
 
+  @Get('users/:id/login-activities')
+  @ApiBearerAuth()
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @UseGuards(AuthGuard, SelfOrRolesGuard)
+  @ApiOperation({ summary: 'Get recent login activities for a user' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number to retrieve (default: 1)',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of login attempts per page (1-50)',
+    type: Number,
+  })
+  async getLoginActivities(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: GetLoginActivitiesDto,
+  ) {
+    return this.auth.getLoginActivities(id, query.page, query.limit);
+  }
+
   private setRefreshTokenCookie(
     req: Request,
     res: Response,
@@ -241,18 +268,6 @@ export class AuthController {
 
   private getClientType(req: Request): string {
     return (req.headers['x-client-type'] as string) || 'web';
-  }
-
-  private ensureSelfOrAdmin(requesterID: string, role: UserRole, targetUserID: string) {
-    if (requesterID === targetUserID) {
-      return;
-    }
-
-    if (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN) {
-      return;
-    }
-
-    throw new ForbiddenException('Not allowed to view login activities for this user');
   }
 
   private getBaseDomain(req: Request): string | undefined {

@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './repositories';
 import { CreateUserDto, UpdateUserDto, GetUsersQueryDto } from './dto';
 import { User } from '@card-hive/shared-database';
-import { UserWithInventoryCount } from '@card-hive/shared-types';
+
+type UserWithInventoryCount = User & {
+  _count: {
+    inventoryItems: number;
+  };
+};
 
 @Injectable()
 export class UsersService {
@@ -76,10 +81,6 @@ export class UsersService {
   async unsuspendUser(id: string) {
     const user = await this.usersRepo.unsuspend(id);
     return this.sanitizeUser(user);
-  }
-
-  async getUserLoginActivities(userID: string, page = 1, limit = 20) {
-    return this.usersRepo.getLoginActivities(userID, page, limit);
   }
 
   private sanitizeUser(user: User) {

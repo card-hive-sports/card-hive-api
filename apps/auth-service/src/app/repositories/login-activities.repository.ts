@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthProvider, PrismaService, User } from '@card-hive/shared-database';
+import { AuthProvider, PrismaService, User, LoginActivity } from '@card-hive/shared-database';
 import type { Request } from 'express';
 
 
@@ -43,6 +43,15 @@ export class LoginActivitiesRepository {
     return this.prisma.loginActivity.updateMany({
       where: { id },
       data: { success: false, failureReason: reason }
+    });
+  }
+
+  async getPaginatedByUserID(userID: string, page: number, limit: number) {
+    return this.prisma.paginate<LoginActivity>(this.prisma.loginActivity, {
+      page,
+      limit,
+      where: { userID },
+      orderBy: { loginAt: 'desc' },
     });
   }
 

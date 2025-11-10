@@ -9,13 +9,11 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  ParseIntPipe,
-  DefaultValuePipe,
   UseGuards,
   ParseUUIDPipe,
   Patch,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, GetUsersQueryDto } from './dto';
 import { Roles, RolesGuard, SelfOrRolesGuard } from '@card-hive/shared-auth';
@@ -135,21 +133,5 @@ export class UsersController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ) {
     return this.users.unsuspendUser(id);
-  }
-
-  @Get(':id/login-activities')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
-  @UseGuards(SelfOrRolesGuard)
-  @ApiOperation({ summary: 'Get user login activities' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 5 })
-  @ApiResponse({ status: 200, description: 'Login activities retrieved successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  async getUserLoginActivities(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-  ) {
-    return this.users.getUserLoginActivities(id, page, limit);
   }
 }

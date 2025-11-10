@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class AuthConfigSchema {
   @IsString()
@@ -33,4 +33,11 @@ export class AuthConfigSchema {
 
   @IsString()
   GATEWAY_SERVICE_URL: string;
+
+  @IsString()
+  REDIS_URL: string;
+
+  @IsOptional()
+  @IsNumberString()
+  CACHE_TTL: string;
 }

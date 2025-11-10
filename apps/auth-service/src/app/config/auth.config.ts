@@ -38,6 +38,10 @@ export const authConfig = registerAs('auth', ()=> {
     },
     services: {
       gateway: config.GATEWAY_SERVICE_URL,
-    }
+    },
+    redis: {
+      url: config.REDIS_URL,
+      cacheTTL: Number(config.CACHE_TTL),
+    },
   };
 });

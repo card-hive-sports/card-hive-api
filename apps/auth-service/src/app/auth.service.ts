@@ -13,7 +13,7 @@ import {
   UsersRepository,
 } from './repositories';
 import { PhoneService } from './phone.service';
-import { User, AuthProvider, UserRole } from '@card-hive/shared-database';
+import { User, AuthProvider, UserRole, LoginActivity } from '@card-hive/shared-database';
 import {
   AuthVerificationResponse,
   EmailLoginRequest,
@@ -24,6 +24,8 @@ import {
   PhoneLoginVerifyRequest,
   RegisterRequest,
   ResetPasswordRequest,
+  LoginActivityResponse,
+  LoginActivitiesPaginatedResponse,
 } from '@card-hive/shared-types';
 import { JwtPayload } from '@card-hive/shared-auth';
 import { randomBytes } from 'node:crypto';
@@ -31,10 +33,14 @@ import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 import * as bcrypt from 'bcrypt';
 import { GoogleService } from './google.service';
+import { LoginActivitiesCache } from './cache/login-activities.cache';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly loginActivitiesDefaultLimit = 20;
+  private readonly loginActivitiesMaxLimit = 50;
+  private readonly loginActivitiesDefaultPage = 1;
 
   constructor(
     private readonly users: UsersRepository,
@@ -44,7 +50,8 @@ export class AuthService {
     private readonly phone: PhoneService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
-    private readonly google: GoogleService
+    private readonly google: GoogleService,
+    private readonly loginActivitiesCache: LoginActivitiesCache
   ) {}
 
   async register(data: RegisterRequest, req: Request) {
@@ -106,6 +113,8 @@ export class AuthService {
         await this.loginActivities.markSuccess(sessionID);
       }
 
+      await this.loginActivitiesCache.invalidate(user.id);
+
       return {
         accessToken,
         refreshToken,
@@ -149,6 +158,8 @@ export class AuthService {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user.id);
 
+    await this.loginActivitiesCache.invalidate(user.id);
+
     return {
       accessToken,
       refreshToken,
@@ -181,6 +192,8 @@ export class AuthService {
 
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user.id);
+
+    await this.loginActivitiesCache.invalidate(user.id);
 
     return {
       accessToken,
@@ -234,6 +247,43 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
+  async getLoginActivities(
+    userID: string,
+    page?: number,
+    limit?: number
+  ): Promise<LoginActivitiesPaginatedResponse> {
+    const normalizedLimit = this.normalizeLoginActivitiesLimit(limit);
+    const normalizedPage = this.normalizeLoginActivitiesPage(page);
+
+    const cached = await this.loginActivitiesCache.get(
+      userID,
+      normalizedPage,
+      normalizedLimit
+    );
+    if (cached) {
+      return cached;
+    }
+
+    const result = await this.loginActivities.getPaginatedByUserID(
+      userID,
+      normalizedPage,
+      normalizedLimit
+    );
+    const response: LoginActivitiesPaginatedResponse = {
+      data: result.data.map((activity) => this.mapLoginActivity(activity)),
+      pagination: result.pagination,
+    };
+
+    await this.loginActivitiesCache.set(
+      userID,
+      normalizedPage,
+      normalizedLimit,
+      response
+    );
+
+    return response;
+  }
+
   async refresh(
     refreshToken: string
   ): Promise<AuthResponse> {
@@ -280,6 +330,52 @@ export class AuthService {
   async logoutAll(userID: string): Promise<{ message: string }> {
     await this.refreshTokens.deleteAllByUserID(userID);
     return { message: 'Logged out from all devices' };
+  }
+
+  private mapLoginActivity(activity: LoginActivity): LoginActivityResponse {
+    return {
+      id: activity.id,
+      userID: activity.userID,
+      loginAt: activity.loginAt.toISOString(),
+      ipAddress: activity.ipAddress,
+      userAgent: activity.userAgent,
+      deviceType: activity.deviceType,
+      platform: activity.platform,
+      browser: activity.browser,
+      loginMethod: activity.loginMethod,
+      success: activity.success,
+      failureReason: activity.failureReason,
+    };
+  }
+
+  private normalizeLoginActivitiesPage(page?: number): number {
+    if (typeof page !== 'number' || Number.isNaN(page)) {
+      return this.loginActivitiesDefaultPage;
+    }
+
+    const sanitized = Math.floor(page);
+    if (sanitized < 1) {
+      return this.loginActivitiesDefaultPage;
+    }
+
+    return sanitized;
+  }
+
+  private normalizeLoginActivitiesLimit(limit?: number): number {
+    if (typeof limit !== 'number' || Number.isNaN(limit)) {
+      return this.loginActivitiesDefaultLimit;
+    }
+
+    const sanitized = Math.floor(limit);
+    if (sanitized < 1) {
+      return 1;
+    }
+
+    if (sanitized > this.loginActivitiesMaxLimit) {
+      return this.loginActivitiesMaxLimit;
+    }
+
+    return sanitized;
   }
 
   private async generateRefreshToken(userID: string): Promise<string> {
