@@ -8,12 +8,14 @@ export class LoginActivitiesCache implements OnModuleDestroy {
   private readonly logger = new Logger(LoginActivitiesCache.name);
   private readonly ttlSeconds: number;
   private readonly client?: Redis;
+  private readonly indexExpirySeconds: number;
 
   constructor(private readonly config: ConfigService) {
     const redisURL = this.config.get<string>('auth.redis.url');
     this.ttlSeconds = this.normalizeTTL(
       Number(this.config.get<number>('auth.redis.cacheTTL') ?? 300)
     );
+    this.indexExpirySeconds = this.ttlSeconds * 2;
 
     if (!redisURL) {
       this.logger.warn('Redis URL not configured; login activity caching disabled');
@@ -24,8 +26,16 @@ export class LoginActivitiesCache implements OnModuleDestroy {
       lazyConnect: true,
     });
 
+    this.client.on('ready', () => {
+      this.logger.log('Login activities cache connected');
+    });
+
     this.client.on('error', (error) => {
       this.logger.error(`Redis connection error: ${(error as Error).message}`);
+    });
+
+    this.client.connect().catch((error) => {
+      this.logger.error(`Failed to initialize Redis connection: ${(error as Error).message}`);
     });
   }
 
@@ -40,7 +50,7 @@ export class LoginActivitiesCache implements OnModuleDestroy {
     page: number,
     limit: number
   ): Promise<LoginActivitiesPaginatedResponse | null> {
-    if (!this.client) {
+    if (!this.isCacheAvailable()) {
       return null;
     }
 
@@ -63,17 +73,20 @@ export class LoginActivitiesCache implements OnModuleDestroy {
     limit: number,
     payload: LoginActivitiesPaginatedResponse
   ): Promise<void> {
-    if (!this.client) {
+    if (!this.isCacheAvailable()) {
       return;
     }
 
     try {
-      await this.client.set(
-        this.buildKey(userID, page, limit),
-        JSON.stringify(payload),
-        'EX',
-        this.ttlSeconds
-      );
+      const key = this.buildKey(userID, page, limit);
+      const indexKey = this.buildKeyIndex(userID);
+
+      await this.client
+        .multi()
+        .set(key, JSON.stringify(payload), 'EX', this.ttlSeconds)
+        .sadd(indexKey, key)
+        .expire(indexKey, this.indexExpirySeconds)
+        .exec();
     } catch (error) {
       this.logger.warn(
         `Failed to write login activities cache: ${
@@ -84,15 +97,19 @@ export class LoginActivitiesCache implements OnModuleDestroy {
   }
 
   async invalidate(userID: string): Promise<void> {
-    if (!this.client) {
+    if (!this.isCacheAvailable()) {
       return;
     }
 
     try {
-      const keys = await this.collectKeys(`auth:login-activities:${userID}:*`);
+      const indexKey = this.buildKeyIndex(userID);
+      const keys = await this.collectIndexedKeys(indexKey);
+
       if (keys.length > 0) {
-        await this.client.del(...keys);
+        await this.deleteKeys(keys);
       }
+
+      await this.client.del(indexKey);
     } catch (error) {
       this.logger.warn(
         `Failed to invalidate login activities cache: ${
@@ -102,7 +119,7 @@ export class LoginActivitiesCache implements OnModuleDestroy {
     }
   }
 
-  private async collectKeys(pattern: string): Promise<string[]> {
+  private async collectIndexedKeys(indexKey: string): Promise<string[]> {
     if (!this.client) {
       return [];
     }
@@ -111,24 +128,46 @@ export class LoginActivitiesCache implements OnModuleDestroy {
     let cursor = '0';
 
     do {
-      const [nextCursor, scanKeys] = await this.client.scan(
+      const [nextCursor, batch] = await this.client.sscan(
+        indexKey,
         cursor,
-        'MATCH',
-        pattern,
         'COUNT',
-        50
+        100
       );
       cursor = nextCursor;
-      if (scanKeys.length) {
-        keys.push(...scanKeys);
+      if (batch.length) {
+        keys.push(...batch);
       }
     } while (cursor !== '0');
 
     return keys;
   }
 
+  private async deleteKeys(keys: string[]): Promise<void> {
+    if (!this.client || keys.length === 0) {
+      return;
+    }
+
+    const batchSize = 100;
+    for (let i = 0; i < keys.length; i += batchSize) {
+      const batch = keys.slice(i, i + batchSize);
+      await this.client.unlink(...batch);
+    }
+  }
+
   private buildKey(userID: string, page: number, limit: number) {
     return `auth:login-activities:${userID}:page:${page}:limit:${limit}`;
+  }
+
+  private buildKeyIndex(userID: string) {
+    return `auth:login-activities:${userID}:keys`;
+  }
+
+  private isCacheAvailable(): boolean {
+    if (!this.client) {
+      return false;
+    }
+    return this.client.status === 'ready';
   }
 
   private normalizeTTL(ttl: number) {

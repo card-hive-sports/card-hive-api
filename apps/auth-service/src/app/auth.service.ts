@@ -113,7 +113,7 @@ export class AuthService {
         await this.loginActivities.markSuccess(sessionID);
       }
 
-      await this.loginActivitiesCache.invalidate(user.id);
+      this.scheduleLoginActivitiesCacheInvalidation(user.id);
 
       return {
         accessToken,
@@ -158,7 +158,7 @@ export class AuthService {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user.id);
 
-    await this.loginActivitiesCache.invalidate(user.id);
+    this.scheduleLoginActivitiesCacheInvalidation(user.id);
 
     return {
       accessToken,
@@ -193,7 +193,7 @@ export class AuthService {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user.id);
 
-    await this.loginActivitiesCache.invalidate(user.id);
+    this.scheduleLoginActivitiesCacheInvalidation(user.id);
 
     return {
       accessToken,
@@ -402,6 +402,16 @@ export class AuthService {
     };
 
     return this.jwt.sign(payload);
+  }
+
+  private scheduleLoginActivitiesCacheInvalidation(userID: string): void {
+    void this.loginActivitiesCache.invalidate(userID).catch((error: unknown) => {
+      this.logger.warn(
+        `Failed to invalidate login activities cache for ${userID}: ${
+          error instanceof Error ? error.message : 'unknown error'
+        }`
+      );
+    });
   }
 
   private sanitizeUser(user: User): Partial<User> {
