@@ -13,7 +13,7 @@ export class LoginActivitiesCache implements OnModuleDestroy {
   constructor(private readonly config: ConfigService) {
     const redisURL = this.config.get<string>('auth.redis.url');
     this.ttlSeconds = this.normalizeTTL(
-      Number(this.config.get<number>('auth.redis.cacheTTL') ?? 300)
+      Number(this.config.get<number>('auth.redis.cacheTTL'))
     );
     this.indexExpirySeconds = this.ttlSeconds * 2;
 
@@ -55,7 +55,7 @@ export class LoginActivitiesCache implements OnModuleDestroy {
     }
 
     try {
-      const cached = await this.client.get(this.buildKey(userID, page, limit));
+      const cached = await this.client?.get(this.buildKey(userID, page, limit));
       return cached ? JSON.parse(cached) : null;
     } catch (error) {
       this.logger.warn(
@@ -82,7 +82,7 @@ export class LoginActivitiesCache implements OnModuleDestroy {
       const indexKey = this.buildKeyIndex(userID);
 
       await this.client
-        .multi()
+        ?.multi()
         .set(key, JSON.stringify(payload), 'EX', this.ttlSeconds)
         .sadd(indexKey, key)
         .expire(indexKey, this.indexExpirySeconds)
@@ -109,7 +109,7 @@ export class LoginActivitiesCache implements OnModuleDestroy {
         await this.deleteKeys(keys);
       }
 
-      await this.client.del(indexKey);
+      await this.client?.del(indexKey);
     } catch (error) {
       this.logger.warn(
         `Failed to invalidate login activities cache: ${
