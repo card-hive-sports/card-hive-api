@@ -23,6 +23,9 @@
     },
     {
       "path": "./libs/shared/auth"
+    },
+    {
+      "path": "./apps/inventory-service"
     }
   ]
 }

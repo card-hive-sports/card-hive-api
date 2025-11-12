@@ -56,7 +56,8 @@
       "exclude": [
         "apps/auth-service-e2e/**/*",
         "apps/gateway-service-e2e/**/*",
-        "apps/users-service-e2e/**/*"
+        "apps/users-service-e2e/**/*",
+        "apps/inventory-service-e2e/**/*"
       ]
     },
     {
