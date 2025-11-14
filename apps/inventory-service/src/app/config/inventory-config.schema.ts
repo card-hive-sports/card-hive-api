@@ -5,6 +5,9 @@ export class InventoryConfigSchema {
   NODE_ENV: string;
 
   @IsString()
+  DATABASE_URL: string;
+  
+  @IsString()
   GATEWAY_SERVICE_URL: string;
 
   @IsString()
