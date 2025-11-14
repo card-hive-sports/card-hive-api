@@ -38,6 +38,10 @@ export const gatewayConfig = registerAs('gateway', ()=> {
       inventory: {
         internal: config.GATEWAY_SERVICES_INVENTORY,
         external: config.GATEWAY_SERVICES_INVENTORY_EXTERNAL,
+      },
+      media: {
+        internal: config.GATEWAY_SERVICES_MEDIA,
+        external: config.GATEWAY_SERVICES_MEDIA_EXTERNAL,
       }
     },
     cors: {

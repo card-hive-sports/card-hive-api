@@ -26,6 +26,9 @@
     },
     {
       "path": "./apps/inventory-service"
+    },
+    {
+      "path": "./apps/media-service"
     }
   ]
 }

@@ -23,6 +23,12 @@ export class GatewayConfigSchema {
   @IsString()
   GATEWAY_SERVICES_INVENTORY_EXTERNAL: string;
 
+  @IsString()
+  GATEWAY_SERVICES_MEDIA: string;
+
+  @IsString()
+  GATEWAY_SERVICES_MEDIA_EXTERNAL: string;
+
   @IsOptional()
   @Transform(v => v.value?.split(','))
   @IsString({ each: true })

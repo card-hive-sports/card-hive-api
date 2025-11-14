@@ -76,7 +76,8 @@ async function bootstrap() {
       '**Available Services:**',
       `- 🔐 [Auth Service API Docs](${services.auth.external}/api/docs)`,
       `- 👥 [Users Service API Docs](${services.users.external}/api/docs)`,
-      `- 📦 [Inventory Service API Docs](${services.inventory.external}/api/docs)`
+      `- 📦 [Inventory Service API Docs](${services.inventory.external}/api/docs)`,
+      `- 📺 [Media Service API Docs](${services.media.external}/api/docs)`
     ].join('\n'))
     .setVersion('1.0')
     .build();
@@ -87,6 +88,7 @@ async function bootstrap() {
   app.use('/api/auth', proxyMiddleware(`${services.auth.internal}/api/auth`));
   app.use('/api/users', proxyMiddleware(`${services.users.internal}/api/users`));
   app.use('/api/inventory', proxyMiddleware(`${services.inventory.internal}/api/inventory`));
+  app.use('/api/media', proxyMiddleware(`${services.media.internal}/api/media`));
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

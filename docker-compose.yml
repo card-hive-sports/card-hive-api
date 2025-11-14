@@ -100,6 +100,24 @@ services:
       redis:
         condition: service_healthy
 
+  media:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: media-service
+    container_name: media
+    ports:
+      - "3004:3004"
+    env_file:
+      - .env
+      - apps/media-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
     driver: local
