@@ -82,6 +82,24 @@ services:
       redis:
         condition: service_healthy
 
+  inventory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: inventory-service
+    container_name: inventory
+    ports:
+      - "3003:3003"
+    env_file:
+      - .env
+      - apps/inventory-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
     driver: local

@@ -1,0 +1,14 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+watchPatterns = [
+  "apps/inventory-service/**",
+  "libs/shared/**",
+  "nx.json",
+  "package.json",
+  "tsconfig*.json"
+]
+
+[deploy]
+healthcheckPath = ""
+restartPolicyType = "never"
