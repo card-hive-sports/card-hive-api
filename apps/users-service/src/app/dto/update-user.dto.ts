@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsDateString, IsOptional, Matches } from 'class-validator';
+import { IsEmail, IsString, IsDateString, IsOptional, Matches, IsUrl } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UpdateUserRequest } from '@card-hive/shared-types';
 
@@ -23,4 +23,12 @@ export class UpdateUserDto implements UpdateUserRequest {
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
+
+  @ApiProperty({
+    example: 'https://cdn.cardhive.com/avatars/john-doe.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsUrl()
+  avatarUrl?: string;
 }

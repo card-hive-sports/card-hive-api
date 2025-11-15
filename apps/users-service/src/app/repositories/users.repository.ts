@@ -94,6 +94,7 @@ export class UsersRepository {
         phone: true,
         dateOfBirth: true,
         role: true,
+        avatarUrl: true,
         walletBalance: true,
         walletCurrency: true,
         kycStatus: true,
@@ -121,6 +122,7 @@ export class UsersRepository {
         phone: true,
         dateOfBirth: true,
         role: true,
+        avatarUrl: true,
         walletBalance: true,
         walletCurrency: true,
         kycStatus: true,
@@ -150,6 +152,7 @@ export class UsersRepository {
     email?: string;
     phone?: string;
     dateOfBirth?: Date;
+    avatarUrl?: string;
   }): Promise<User> {
     const user = await this.findByID(id);
 
@@ -178,6 +181,7 @@ export class UsersRepository {
         email: data.email,
         phone: data.phone,
         dateOfBirth: data.dateOfBirth,
+        avatarUrl: data.avatarUrl,
       },
     });
   }

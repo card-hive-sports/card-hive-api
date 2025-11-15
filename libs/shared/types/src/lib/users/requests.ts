@@ -29,6 +29,7 @@ export interface UpdateUserRequest {
   email?: string;
   phone?: string;
   dateOfBirth?: string;
+  avatarUrl?: string;
 }
 
 export interface GetUsersQueryParams {

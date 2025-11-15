@@ -53,6 +53,7 @@ export class UsersService {
       email: dto.email,
       phone: dto.phone,
       dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+      avatarUrl: dto.avatarUrl,
     });
 
     return this.sanitizeUser(user);
