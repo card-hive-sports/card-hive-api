@@ -6,6 +6,8 @@ import { MediaService } from './media.service';
 import { SharedAuthModule, AuthGuard } from '@card-hive/shared-auth';
 import { SharedDatabaseModule } from '@card-hive/shared-database';
 import { mediaConfig } from './config/media.config';
+import { MediaProgressCache } from './cache/media-progress.cache';
+import { MediaUploadQueue } from './queues/media-upload.queue';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { mediaConfig } from './config/media.config';
   controllers: [MediaController],
   providers: [
     MediaService,
+    MediaProgressCache,
+    MediaUploadQueue,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

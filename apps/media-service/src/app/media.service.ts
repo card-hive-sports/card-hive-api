@@ -1,6 +1,4 @@
-import { createReadStream } from 'fs';
 import { unlink } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
 import {
   Inject,
   Injectable,
@@ -10,8 +8,6 @@ import {
 } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { Prisma, MediaFileStatus, MediaFile } from '@prisma/client';
-import { Upload } from '@aws-sdk/lib-storage';
-import { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { PrismaService } from '@card-hive/shared-database';
 import {
   CreateMediaUploadPayload,
@@ -19,6 +15,9 @@ import {
   MediaFileProgressResponse,
   MediaFileResponse,
 } from '@card-hive/shared-types';
+import { MediaProgressCache } from './cache/media-progress.cache';
+import { MediaUploadQueue } from './queues/media-upload.queue';
+import { buildKey, toProgressSnapshot } from './utils/media-upload.utils';
 import { mediaConfig } from './config/media.config';
 
 type MediaWithUser = MediaFile & {
@@ -31,35 +30,21 @@ type MediaWithUser = MediaFile & {
 @Injectable()
 export class MediaService {
   private readonly logger = new Logger(MediaService.name);
-  private readonly s3Client: S3Client;
 
   constructor(
     @Inject(mediaConfig.KEY)
     private readonly config: ConfigType<typeof mediaConfig>,
-    private readonly prisma: PrismaService
-  ) {
-    const s3Options: S3ClientConfig = {
-      region: this.config.s3.region,
-      credentials: {
-        accessKeyId: this.config.s3.accessKeyID,
-        secretAccessKey: this.config.s3.secretAccessKey,
-      },
-      forcePathStyle: this.config.s3.forcePathStyle,
-    };
-
-    if (this.config.s3.endpoint) {
-      s3Options.endpoint = this.config.s3.endpoint;
-    }
-
-    this.s3Client = new S3Client(s3Options);
-  }
+    private readonly prisma: PrismaService,
+    private readonly cache: MediaProgressCache,
+    private readonly queue: MediaUploadQueue
+  ) {}
 
   async uploadFile(
     file: Express.Multer.File,
     payload: CreateMediaUploadPayload,
     userID?: string
   ): Promise<MediaFileResponse> {
-    const key = this.buildKey(file.originalname);
+    const key = buildKey(file.originalname, payload.folder);
     const metadata = this.mergeMetadata(payload);
 
     const record = await this.prisma.mediaFile.create({
@@ -74,83 +59,62 @@ export class MediaService {
         metadata: JSON.parse(JSON.stringify(metadata)) ?? undefined,
         userID,
       },
-    });
-
-    let lastProgress = 0;
-    const totalBytes = file.size || Number(record.size) || 0;
-
-    const upload = new Upload({
-      client: this.s3Client,
-      params: {
-        Bucket: this.config.s3.bucketName,
-        Key: key,
-        Body: createReadStream(file.path),
-        ContentType: file.mimetype,
-        Metadata: this.toS3Metadata(metadata),
-      },
-      queueSize: 3,
-      partSize: this.config.upload.partSizeBytes,
-    });
-
-    upload.on('httpUploadProgress', (progress) => {
-      const percent = this.calculatePercent(
-        progress.loaded ?? 0,
-        progress.total ?? totalBytes
-      );
-
-      if (percent === undefined) {
-        return;
-      }
-
-      if (percent - lastProgress >= 5 || percent === 100) {
-        lastProgress = percent;
-        void this.prisma.mediaFile.update({
-          where: { id: record.id },
-          data: {
-            progress: percent,
-            status:
-              percent === 100 ? MediaFileStatus.COMPLETED : MediaFileStatus.UPLOADING,
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
           },
-        });
-      }
+        },
+      },
     });
+
+    const initialSnapshot = toProgressSnapshot({
+      id: record.id,
+      bucket: record.bucket,
+      key: record.key,
+      url: record.url ?? null,
+      status: record.status,
+      progress: record.progress,
+      updatedAt: record.updatedAt,
+    });
+
+    await this.cache.setProgress(initialSnapshot);
 
     try {
-      const result = await upload.done();
-
-      const updated = await this.prisma.mediaFile.update({
-        where: { id: record.id },
-        data: {
-          status: MediaFileStatus.COMPLETED,
-          progress: 100,
-          eTag: result.ETag ?? undefined,
-          url: result.Location ?? this.buildUrl(key),
-          size: BigInt(file.size),
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-        },
+      await this.queue.enqueue({
+        mediaFileId: record.id,
+        filePath: file.path,
+        fileName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size ?? Number(record.size ?? 0n),
       });
-
-      return this.toResponse(updated);
     } catch (error) {
-      this.logger.error('Media upload failed', error);
+      this.logger.error('Failed to queue media upload job', error as Error);
+
       await this.prisma.mediaFile.update({
         where: { id: record.id },
         data: {
-          progress: Math.min(100, lastProgress),
           status: MediaFileStatus.FAILED,
         },
       });
-      throw new InternalServerErrorException('Failed to upload media file.');
-    } finally {
-      await unlink(file.path).catch();
+
+      const failedSnapshot = toProgressSnapshot({
+        id: record.id,
+        bucket: record.bucket,
+        key: record.key,
+        url: record.url ?? null,
+        status: MediaFileStatus.FAILED,
+        progress: record.progress,
+        updatedAt: new Date(),
+      });
+
+      await this.cache.setProgress(failedSnapshot);
+      await this.safeUnlink(file.path);
+      throw new InternalServerErrorException('Failed to queue media upload job.');
     }
+
+    return this.toResponse(record);
   }
 
   async find(query: FindMediaFilesQuery) {
@@ -204,6 +168,11 @@ export class MediaService {
   }
 
   async getProgress(id: string): Promise<MediaFileProgressResponse> {
+    const cached = await this.cache.getProgress(id);
+    if (cached) {
+      return cached;
+    }
+
     const file = await this.prisma.mediaFile.findUnique({
       where: { id },
       select: {
@@ -221,7 +190,19 @@ export class MediaService {
       throw new NotFoundException('Media file not found.');
     }
 
-    return file;
+    const snapshot = toProgressSnapshot({
+      id: file.id,
+      bucket: file.bucket,
+      key: file.key,
+      url: file.url ?? null,
+      status: file.status,
+      progress: file.progress,
+      updatedAt: file.updatedAt,
+    });
+
+    void this.cache.setProgress(snapshot);
+
+    return snapshot;
   }
 
   private buildFilters(query: FindMediaFilesQuery): Prisma.MediaFileWhereInput {
@@ -274,27 +255,6 @@ export class MediaService {
     return where;
   }
 
-  private buildKey(fileName: string) {
-    const cleaned = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const suffix = cleaned.length > 0 ? `-${cleaned}` : '';
-    return `uploads/${randomUUID()}${suffix}`;
-  }
-
-  private buildUrl(key: string) {
-    const base = this.config.s3.endpoint
-      ? this.config.s3.endpoint.replace(/\/$/, '')
-      : `https://${this.config.s3.bucketName}.s3.${this.config.s3.region}.amazonaws.com`;
-    return `${base}/${key}`;
-  }
-
-  private calculatePercent(loaded: number, total: number) {
-    if (total <= 0) {
-      return undefined;
-    }
-    const percent = Math.floor((loaded / total) * 100);
-    return Math.min(100, Math.max(0, percent));
-  }
-
   private mergeMetadata(payload: CreateMediaUploadPayload) {
     const metadata: Record<string, unknown> = {};
 
@@ -317,19 +277,8 @@ export class MediaService {
     return Object.keys(metadata).length > 0 ? metadata : null;
   }
 
-  private toS3Metadata(metadata?: Record<string, unknown> | null) {
-    if (!metadata) {
-      return undefined;
-    }
-
-    return Object.entries(metadata).reduce<Record<string, string>>((acc, [key, value]) => {
-      if (value === undefined || value === null) {
-        return acc;
-      }
-      acc[key] =
-        typeof value === 'string' ? value : JSON.stringify(value, (_, v) => (v === undefined ? null : v));
-      return acc;
-    }, {});
+  private async safeUnlink(filePath: string) {
+    await unlink(filePath).catch();
   }
 
   private toResponse(file: MediaWithUser): MediaFileResponse {

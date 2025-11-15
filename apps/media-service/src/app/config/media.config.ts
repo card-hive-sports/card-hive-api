@@ -41,5 +41,9 @@ export const mediaConfig = registerAs('media', ()=> {
       maxFileBytes: config.MEDIA_MAX_UPLOAD_BYTES ?? 524_288_000,
       partSizeBytes: config.MEDIA_UPLOAD_PART_SIZE_BYTES ?? 5_242_880,
     },
+    redis: {
+      url: config.REDIS_URL,
+      cacheTTL: config.CACHE_TTL,
+    },
   };
 });

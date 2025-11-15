@@ -88,7 +88,7 @@ async function bootstrap() {
   app.use('/api/auth', proxyMiddleware(`${services.auth.internal}/api/auth`));
   app.use('/api/users', proxyMiddleware(`${services.users.internal}/api/users`));
   app.use('/api/inventory', proxyMiddleware(`${services.inventory.internal}/api/inventory`));
-  app.use('/api/media', proxyMiddleware(`${services.media.internal}/api/media`));
+  app.use('/api/files', proxyMiddleware(`${services.media.internal}/api/files`));
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

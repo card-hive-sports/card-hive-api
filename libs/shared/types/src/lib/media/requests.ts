@@ -5,6 +5,7 @@ export interface CreateMediaUploadPayload {
   description?: string;
   tags?: string[];
   metadata?: Record<string, unknown>;
+  folder?: string;
 }
 
 export interface FindMediaFilesQuery {

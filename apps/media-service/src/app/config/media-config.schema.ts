@@ -45,4 +45,11 @@ export class MediaConfigSchema {
   @Type(() => Number)
   @IsNumber()
   MEDIA_UPLOAD_PART_SIZE_BYTES?: number;
+
+  @IsString()
+  REDIS_URL: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  CACHE_TTL: number;
 }
