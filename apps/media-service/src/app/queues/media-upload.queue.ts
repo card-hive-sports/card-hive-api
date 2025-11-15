@@ -94,6 +94,7 @@ export class MediaUploadQueue implements OnModuleInit, OnModuleDestroy {
         delay: 1000,
       },
       removeOnComplete: true,
+      removeOnFail: { age: 3600 }
     });
   }
 
