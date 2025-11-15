@@ -8,6 +8,8 @@ import { SharedDatabaseModule } from '@card-hive/shared-database';
 import { mediaConfig } from './config/media.config';
 import { MediaProgressCache } from './cache/media-progress.cache';
 import { MediaUploadQueue } from './queues/media-upload.queue';
+import { ScheduleModule } from '@nestjs/schedule';
+import { FailedMediaCleanupJob } from './jobs/failed-media-cleanup.job';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { MediaUploadQueue } from './queues/media-upload.queue';
       cache: true,
       expandVariables: true,
     }),
+    ScheduleModule.forRoot(),
     SharedAuthModule,
     SharedDatabaseModule,
   ],
@@ -25,6 +28,7 @@ import { MediaUploadQueue } from './queues/media-upload.queue';
     MediaService,
     MediaProgressCache,
     MediaUploadQueue,
+    FailedMediaCleanupJob,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
