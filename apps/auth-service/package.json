@@ -90,6 +90,7 @@
   },
   "dependencies": {
     "@card-hive/shared-auth": "workspace:*",
+    "@card-hive/shared-cache": "workspace:*",
     "@card-hive/shared-database": "workspace:*",
     "@card-hive/shared-types": "workspace:*",
     "@nestjs/common": "^11.0.0",

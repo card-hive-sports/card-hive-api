@@ -79,7 +79,7 @@ export class MediaService {
       updatedAt: record.updatedAt,
     });
 
-    await this.cache.setProgress(initialSnapshot);
+    await this.cache.set(initialSnapshot);
 
     try {
       await this.queue.enqueue({
@@ -109,7 +109,7 @@ export class MediaService {
         updatedAt: new Date(),
       });
 
-      await this.cache.setProgress(failedSnapshot);
+      await this.cache.set(failedSnapshot);
       await this.safeUnlink(file.path);
       throw new InternalServerErrorException('Failed to queue media upload job.');
     }
@@ -168,7 +168,7 @@ export class MediaService {
   }
 
   async getProgress(id: string): Promise<MediaFileProgressResponse> {
-    const cached = await this.cache.getProgress(id);
+    const cached = await this.cache.get(id);
     if (cached) {
       return cached;
     }
@@ -200,7 +200,7 @@ export class MediaService {
       updatedAt: file.updatedAt,
     });
 
-    void this.cache.setProgress(snapshot);
+    void this.cache.set(snapshot);
 
     return snapshot;
   }

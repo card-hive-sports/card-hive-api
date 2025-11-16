@@ -155,7 +155,7 @@ export class MediaUploadQueue implements OnModuleInit, OnModuleDestroy {
           updatedAt: new Date(),
         });
 
-        await this.cache.setProgress(progressSnapshot);
+        await this.cache.set(progressSnapshot);
       }
     });
 
@@ -183,7 +183,7 @@ export class MediaUploadQueue implements OnModuleInit, OnModuleDestroy {
         updatedAt: updated.updatedAt,
       });
 
-      await this.cache.setProgress(progressSnapshot);
+      await this.cache.set(progressSnapshot);
     } catch (error) {
       this.logger.error(`Media upload job failed for ${mediaFileId}`, error as Error);
       
@@ -209,7 +209,7 @@ export class MediaUploadQueue implements OnModuleInit, OnModuleDestroy {
         updatedAt: new Date(),
       });
 
-      await this.cache.setProgress(progressSnapshot);
+      await this.cache.set(progressSnapshot);
       throw error;
     }
   }

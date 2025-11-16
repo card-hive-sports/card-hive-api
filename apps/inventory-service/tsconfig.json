@@ -4,6 +4,15 @@
   "include": [],
   "references": [
     {
+      "path": "../../libs/shared/types"
+    },
+    {
+      "path": "../../libs/shared/database"
+    },
+    {
+      "path": "../../libs/shared/auth"
+    },
+    {
       "path": "./tsconfig.app.json"
     }
   ]
