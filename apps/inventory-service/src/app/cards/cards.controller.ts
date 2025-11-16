@@ -12,13 +12,14 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CardsService } from './cards.service';
 import { CreateCardDto, GetCardsQueryDto, UpdateCardDto } from './dto';
 import { Roles, RolesGuard } from '@card-hive/shared-auth';
 import { UserRole } from '@card-hive/shared-database';
 
 @ApiTags('Inventory Cards')
+@ApiBearerAuth()
 @Controller('cards')
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}

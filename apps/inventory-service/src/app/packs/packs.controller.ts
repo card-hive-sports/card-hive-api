@@ -12,13 +12,14 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PacksService } from './packs.service';
 import { CreatePackDto, GetPacksQueryDto, UpdatePackDto } from './dto';
 import { UserRole } from '@card-hive/shared-database';
 import { Roles, RolesGuard } from '@card-hive/shared-auth';
 
 @ApiTags('Inventory Packs')
+@ApiBearerAuth()
 @Controller('packs')
 export class PacksController {
   constructor(private readonly packsService: PacksService) {}

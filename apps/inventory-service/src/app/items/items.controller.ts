@@ -8,7 +8,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ItemsService } from './items.service';
 import {
   GetInventoryItemsQueryDto,
@@ -18,7 +18,8 @@ import { Roles, RolesGuard, SelfOrRolesGuard } from '@card-hive/shared-auth';
 import { UserRole } from '@card-hive/shared-database';
 
 @ApiTags('Inventory Items')
-@Controller('items')
+@ApiBearerAuth()
+@Controller(':userID/items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
