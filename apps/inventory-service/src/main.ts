@@ -12,7 +12,7 @@ async function bootstrap() {
     transform: true,
     forbidNonWhitelisted: true,
   }));
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/inventory');
 
   app.use(cookieParser());
 

@@ -48,8 +48,8 @@ model User {
   transactions        Transaction[]
   shippingAddresses   ShippingAddress[]
   shipments           Shipment[]
-  sellerTrades        Trade[]            @relation("SellerTrades")
-  buyerTrades         Trade[]            @relation("BuyerTrades")
+  sellerTrades        Trade[]              @relation("SellerTrades")
+  buyerTrades         Trade[]              @relation("BuyerTrades")
   auctions            Auction[]
   bids                Bid[]
   mediaFiles          MediaFile[]
@@ -153,19 +153,19 @@ enum TransactionStatus {
 }
 
 model Transaction {
-  id              String            @id @default(uuid()) @db.Uuid
-  userID          String            @map("user_id") @db.Uuid
-  type            TransactionType
-  amount          Decimal           @db.Decimal(10, 2)
-  fee             Decimal           @default(0) @db.Decimal(10, 2)
-  netAmount       Decimal           @map("net_amount") @db.Decimal(10, 2) // amount - fee
-  status          TransactionStatus @default(PENDING)
-  referenceID     String?           @map("reference_id") @db.Uuid // Links to Trade, Auction, etc.
-  referenceType   String?           @map("reference_type") @db.VarChar(50) // 'trade', 'auction', etc.
-  paymentMethod   String?           @map("payment_method") @db.VarChar(100)
-  metadata        String?           @db.Text // JSON field for additional data
-  createdAt       DateTime          @default(now()) @map("created_at")
-  completedAt     DateTime?         @map("completed_at")
+  id            String            @id @default(uuid()) @db.Uuid
+  userID        String            @map("user_id") @db.Uuid
+  type          TransactionType
+  amount        Decimal           @db.Decimal(10, 2)
+  fee           Decimal           @default(0) @db.Decimal(10, 2)
+  netAmount     Decimal           @map("net_amount") @db.Decimal(10, 2) // amount - fee
+  status        TransactionStatus @default(PENDING)
+  referenceID   String?           @map("reference_id") @db.Uuid // Links to Trade, Auction, etc.
+  referenceType String?           @map("reference_type") @db.VarChar(50) // 'trade', 'auction', etc.
+  paymentMethod String?           @map("payment_method") @db.VarChar(100)
+  metadata      String?           @db.Text // JSON field for additional data
+  createdAt     DateTime          @default(now()) @map("created_at")
+  completedAt   DateTime?         @map("completed_at")
 
   user User @relation(fields: [userID], references: [id], onDelete: Cascade)
 
@@ -202,6 +202,7 @@ enum CardRarity {
 }
 
 enum CardLocation {
+  HOUSE
   VAULT
   PENDING_SHIP
   SHIPPED
@@ -214,19 +215,19 @@ enum CardCondition {
 
 model Pack {
   id          String    @id @default(uuid()) @db.Uuid
-  name        String
   packType    PackType  @map("pack_type")
   sportType   SportType @map("sport_type")
-  imageUrl    String?   @map("image_url") @db.VarChar(500)
-  bannerUrl   String?   @map("banner_url") @db.VarChar(500)
+  imageUrl    String    @map("image_url") @db.VarChar(500)
+  bannerUrl   String    @map("banner_url") @db.VarChar(500)
   description String?   @db.Text
-  price       Decimal?  @db.Decimal(10, 2)
+  price       Decimal   @db.Decimal(10, 2)
   isActive    Boolean   @default(true) @map("is_active")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   cards Card[]
 
+  @@unique([packType, sportType])
   @@index([packType])
   @@index([sportType])
   @@index([isActive])
@@ -234,22 +235,22 @@ model Pack {
 }
 
 model Card {
-  id             String     @id @default(uuid()) @db.Uuid
-  packID         String     @map("pack_id") @db.Uuid
+  id             String         @id @default(uuid()) @db.Uuid
+  packID         String         @map("pack_id") @db.Uuid
   name           String
-  sportType      SportType  @map("sport_type")
+  sportType      SportType      @map("sport_type")
   rarity         CardRarity
-  imageUrl       String?    @map("image_url") @db.VarChar(500)
-  bannerUrl      String?    @map("banner_url") @db.VarChar(500)
-  estimatedValue Decimal?   @map("estimated_value") @db.Decimal(10, 2)
-  serialNumber   String?    @unique @map("serial_number") @db.VarChar(50)
-  description    String?    @db.Text
-  playerName     String?    @map("player_name")
+  imageUrl       String         @map("image_url") @db.VarChar(500)
+  bannerUrl      String         @map("banner_url") @db.VarChar(500)
+  estimatedValue Decimal?       @map("estimated_value") @db.Decimal(10, 2)
+  serialNumber   String         @unique @map("serial_number") @db.VarChar(50)
+  description    String?        @db.Text
+  playerName     String?        @map("player_name")
   year           Int?
-  manufacturer   String?    @db.VarChar(100)
+  manufacturer   String?        @db.VarChar(100)
   condition      CardCondition?
-  createdAt      DateTime   @default(now()) @map("created_at")
-  updatedAt      DateTime   @updatedAt @map("updated_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
 
   pack           Pack            @relation(fields: [packID], references: [id], onDelete: Restrict)
   inventoryItems InventoryItem[]
@@ -262,19 +263,20 @@ model Card {
 }
 
 model InventoryItem {
-  id           String       @id @default(uuid()) @db.Uuid
-  userID       String       @map("user_id") @db.Uuid
-  cardID       String       @map("card_id") @db.Uuid
-  location     CardLocation @default(VAULT)
-  acquiredAt   DateTime     @default(now()) @map("acquired_at")
-  shippedAt    DateTime?    @map("shipped_at")
+  id         String       @id @default(uuid()) @db.Uuid
+  userID     String?      @map("user_id") @db.Uuid
+  cardID     String       @map("card_id") @db.Uuid
+  location   CardLocation @default(HOUSE)
+  acquiredAt DateTime     @default(now()) @map("acquired_at")
+  shippedAt  DateTime?    @map("shipped_at")
 
-  user      User       @relation(fields: [userID], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userID], references: [id], onDelete: SetNull)
   card      Card       @relation(fields: [cardID], references: [id], onDelete: Restrict)
   trades    Trade[]
   auctions  Auction[]
   shipments Shipment[]
 
+  @@unique([cardID])
   @@index([userID])
   @@index([cardID])
   @@index([location])
@@ -288,7 +290,7 @@ model InventoryItem {
 
 enum TradeType {
   FIXED_PRICE
-  CARD_HIVE_BUYBACK // Trade back to Card Hive
+  CARD_HIVE_BUYBACK
 }
 
 enum TradeStatus {
@@ -376,9 +378,9 @@ model Bid {
   status    BidStatus @default(ACTIVE)
   createdAt DateTime  @default(now()) @map("created_at")
 
-  auction       Auction  @relation(fields: [auctionID], references: [id], onDelete: Cascade)
-  bidder        User     @relation(fields: [bidderID], references: [id], onDelete: Cascade)
-  wonAuction    Auction? @relation("WinningBid")
+  auction    Auction  @relation(fields: [auctionID], references: [id], onDelete: Cascade)
+  bidder     User     @relation(fields: [bidderID], references: [id], onDelete: Cascade)
+  wonAuction Auction? @relation("WinningBid")
 
   @@index([auctionID])
   @@index([bidderID])
@@ -402,19 +404,19 @@ enum ShippingStatus {
 }
 
 model ShippingAddress {
-  id          String   @id @default(uuid()) @db.Uuid
-  userID      String   @map("user_id") @db.Uuid
-  fullName    String   @map("full_name")
-  addressLine1 String  @map("address_line_1")
-  addressLine2 String? @map("address_line_2")
-  city        String
-  state       String
-  postalCode  String   @map("postal_code") @db.VarChar(20)
-  country     String   @db.VarChar(2) // ISO 3166-1 alpha-2
-  phone       String
-  isDefault   Boolean  @default(false) @map("is_default")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  userID       String   @map("user_id") @db.Uuid
+  fullName     String   @map("full_name")
+  addressLine1 String   @map("address_line_1")
+  addressLine2 String?  @map("address_line_2")
+  city         String
+  state        String
+  postalCode   String   @map("postal_code") @db.VarChar(20)
+  country      String   @db.VarChar(2) // ISO 3166-1 alpha-2
+  phone        String
+  isDefault    Boolean  @default(false) @map("is_default")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   user      User       @relation(fields: [userID], references: [id], onDelete: Cascade)
   shipments Shipment[]
@@ -450,6 +452,10 @@ model Shipment {
   @@index([trackingNumber])
   @@map("shipments")
 }
+
+// ============================================
+// MEDIA DOMAIN
+// ============================================
 
 enum MediaFileStatus {
   INITIALIZED

@@ -290,6 +290,9 @@ importers:
       '@card-hive/shared-database':
         specifier: workspace:*
         version: link:../../libs/shared/database
+      '@card-hive/shared-types':
+        specifier: workspace:*
+        version: link:../../libs/shared/types
       '@nestjs/common':
         specifier: ^11.0.0
         version: 11.1.7(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.1.14)(rxjs@7.8.2)

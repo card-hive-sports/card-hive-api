@@ -9,7 +9,7 @@ export class SelfOrRolesGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const user: IAuthorisedUser = request.user;
-    const userIDParam = request.params.id;
+    const userIDParam = request.params.userID || request.params.id;
 
     if (!user) {
       throw new ForbiddenException('User not authenticated');
