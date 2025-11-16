@@ -5,6 +5,7 @@ import {
   PackType,
   SportType,
 } from '@card-hive/shared-database';
+import { SORT_ORDER } from '../common.js';
 
 export interface CreatePackRequest {
   packType: PackType;
@@ -33,7 +34,8 @@ export interface GetPacksQueryParams {
   isActive?: boolean;
   page?: number;
   limit?: number;
-  order?: 'asc' | 'desc';
+  sortBy?: PACK_SORT_BY;
+  sortOrder?: SORT_ORDER;
 }
 
 export interface CreateCardRequest {
@@ -98,3 +100,11 @@ export interface GetInventoryItemsQueryParams {
   limit?: number;
   order?: 'asc' | 'desc';
 }
+
+export const PACK_SORT_BY = {
+  PACK_TYPE: 'packType',
+  CREATED_AT: 'createdAt',
+  PRICE: 'price',
+  CARDS: 'cards'
+}
+export type PACK_SORT_BY = (typeof PACK_SORT_BY)[keyof typeof PACK_SORT_BY];

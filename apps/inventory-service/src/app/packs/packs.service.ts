@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService, Prisma, Pack } from '@card-hive/shared-database';
-import { CreatePackRequest, GetPacksQueryParams, UpdatePackRequest } from '@card-hive/shared-types';
+import { CreatePackRequest, GetPacksQueryParams, SORT_ORDER, UpdatePackRequest } from '@card-hive/shared-types';
 
 @Injectable()
 export class PacksService {
@@ -13,7 +13,8 @@ export class PacksService {
       isActive,
       page = 1,
       limit = 20,
-      order = 'desc',
+      sortBy,
+      sortOrder = SORT_ORDER.DESC,
     } = query;
 
     const where: Prisma.PackWhereInput = {};
@@ -27,20 +28,50 @@ export class PacksService {
       where.isActive = isActive;
     }
 
-    return this.prisma.paginate<Pack>(this.prisma.pack, {
+    const orderBy: Record<string, string> = {};
+    if (sortBy) {
+      orderBy[sortBy] = sortOrder;
+    }
+
+    const result = await this.prisma.paginate<Pack>(this.prisma.pack, {
       page,
       limit,
       where,
-      orderBy: { createdAt: order },
+      orderBy,
+      include: {
+        _count: {
+          select: { cards: true }
+        }
+      }
     });
+
+    return {
+      data: (result.data as Array<Pack & { _count: { cards: number } }>).map(pack => ({
+        ...pack,
+        cards: pack._count.cards,
+      })),
+      pagination: result.pagination,
+    };
   }
 
   async getPack(id: string) {
-    const pack = await this.prisma.pack.findUnique({ where: { id } });
+    const pack = await this.prisma.pack.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            cards: true,
+          }
+        }
+      }
+    });
     if (!pack) {
       throw new NotFoundException('Pack not found');
     }
-    return pack;
+    return {
+      ...pack,
+      cards: pack._count.cards,
+    };
   }
 
   async createPack(dto: CreatePackRequest) {
@@ -87,10 +118,22 @@ export class PacksService {
       throw new BadRequestException('At least one field is required when updating a pack');
     }
 
-    return this.prisma.pack.update({
+    const pack = await this.prisma.pack.update({
       where: { id },
       data,
+      include: {
+        _count: {
+          select: {
+            cards: true,
+          }
+        }
+      }
     });
+    
+    return {
+      ...pack,
+      cards: pack._count.cards,
+    };
   }
 
   async deletePack(id: string) {

@@ -1,13 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PackType, SportType } from '@card-hive/shared-database';
 import { CreatePackRequest } from '@card-hive/shared-types';
-import { IsBoolean, IsNotEmpty, IsNumberString, IsOptional, IsEnum, IsString } from 'class-validator';
+import { IsBoolean, IsNumberString, IsOptional, IsEnum, IsString } from 'class-validator';
 
 export class CreatePackDto implements CreatePackRequest {
-  @ApiProperty({ description: 'Pack name' })
-  @IsNotEmpty()
-  readonly name!: string;
-
   @ApiProperty({ enum: PackType })
   @IsEnum(PackType)
   readonly packType!: PackType;

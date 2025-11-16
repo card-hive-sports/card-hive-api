@@ -1,8 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { PackType, SportType } from '@card-hive/shared-database';
-import { GetPacksQueryParams } from '@card-hive/shared-types';
+import { GetPacksQueryParams, PACK_SORT_BY, SORT_ORDER } from '@card-hive/shared-types';
 
 export class GetPacksQueryDto implements GetPacksQueryParams {
   @ApiPropertyOptional({ enum: PackType })
@@ -35,8 +35,19 @@ export class GetPacksQueryDto implements GetPacksQueryParams {
   @Max(100)
   readonly limit?: number = 20;
 
-  @ApiPropertyOptional({ description: 'Sort direction', enum: ['asc', 'desc'], default: 'desc' })
+  @ApiPropertyOptional({
+    enum: PACK_SORT_BY,
+    default: PACK_SORT_BY.CREATED_AT
+  })
   @IsOptional()
-  @IsIn(['asc', 'desc'])
-  readonly order?: 'asc' | 'desc' = 'desc';
+  @IsEnum(PACK_SORT_BY)
+  sortBy?: PACK_SORT_BY = PACK_SORT_BY.CREATED_AT;
+
+  @ApiPropertyOptional({
+    enum: SORT_ORDER,
+    default: SORT_ORDER.DESC
+  })
+  @IsOptional()
+  @IsEnum(SORT_ORDER)
+  sortOrder?: SORT_ORDER = SORT_ORDER.DESC;
 }
