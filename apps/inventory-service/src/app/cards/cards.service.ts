@@ -40,7 +40,7 @@ export class CardsService {
         pack: {
           select: {
             id: true,
-            name: true,
+            packType: true,
             sportType: true,
           },
         },
